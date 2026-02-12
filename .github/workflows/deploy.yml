@@ -1,0 +1,41 @@
+name: Deploy to Sakuracloud
+
+on:
+  push:
+    branches:
+      - main  # mainブランチにPushされた時に実行
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. GitHubから最新のコードを取得
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Node.js環境をセットアップ
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # 3. 依存ライブラリをインストール
+      - name: Install dependencies
+        run: npm install
+
+      # 4. Astroをビルド（distフォルダが生成される）
+      - name: Build Astro
+        run: npm run build
+
+      # 5. さくらサーバーへFTP転送
+      - name: FTP Deploy
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          # ↓【重要】さくらサーバー側の転送先パス！
+          server-dir: www/member/
+          local-dir: ./dist/

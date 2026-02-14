@@ -29,13 +29,14 @@ jobs:
       - name: Build Astro
         run: npm run build
 
-      # 5. さくらサーバーへFTP転送
-      - name: FTP Deploy
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      # 5. さくらサーバーへSFTP転送
+      - name: SFTP Deploy
+        uses: appleboy/scp-action@v0.1.7
         with:
-          server: ${{ secrets.FTP_SERVER }}
+          host: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          # ↓【重要】さくらサーバー側の転送先パス！
-          server-dir: www/member/
-          local-dir: ./dist/
+          port: 22
+          source: "dist/*"
+          target: "www/member/"
+          strip_components: 1 # distフォルダ自体ではなく中身だけを送る設定

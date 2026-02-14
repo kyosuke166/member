@@ -1,0 +1,35 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="ログアウト完了 | SBTフリーランス">
+  <main class="min-h-screen bg-slate-50 flex items-center justify-center px-6">
+    <div class="max-w-md w-full bg-white rounded-3xl shadow-xl border border-slate-200 p-10 text-center">
+      <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+        </svg>
+      </div>
+
+      <h1 class="text-2xl font-black text-slate-900 mb-4 tracking-tight">ログアウトしました</h1>
+      <p class="text-slate-500 text-sm leading-relaxed mb-8">
+        SBTフリーランスをご利用いただきありがとうございました。<br>またのご利用をお待ちしております。
+      </p>
+
+      <div class="flex flex-col gap-3">
+        <a 
+          href="/" 
+          class="bg-blue-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20 text-sm"
+        >
+          ログイン画面へ戻る
+        </a>
+        <a 
+          href="https://sbt-inc.co.jp/" 
+          class="text-slate-400 font-bold py-3 px-6 rounded-xl hover:text-slate-600 transition-all text-xs"
+        >
+          コーポレートサイトを表示
+        </a>
+      </div>
+    </div>
+  </main>
+</Layout>

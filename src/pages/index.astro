@@ -2,148 +2,103 @@
 import Layout from '../layouts/Layout.astro';
 ---
 
-<Layout title="ログイン | SBTフリーランス">
-  <style>
-    /* ページ全体のレイアウト（Layout.astroの外側と調和させる） */
-    .login-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      background: #f0f2f5; /* 画像通りの落ち着いた薄いグレー */
-      margin: 0;
-    }
-
-    /* 中央の白いカード */
-    .login-card {
-      background: white;
-      padding: 3rem 2.5rem; /* 上下の余白を少し広めに */
-      border-radius: 12px;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.05); /* 柔らかい影 */
-      width: 100%;
-      max-width: 420px;
-      box-sizing: border-box;
-    }
-
-    /* ロゴ・タイトル部分 */
-    .logo {
-      text-align: center;
-      font-weight: 800;
-      font-size: 2rem;
-      color: #0056b3;
-      margin-bottom: 0.5rem;
-      letter-spacing: -0.02em;
-    }
-    .subtitle {
-      text-align: center;
-      color: #666;
-      font-size: 0.95rem;
-      margin-bottom: 2.5rem;
-      font-weight: 500;
-    }
-
-    /* フォーム入力 */
-    .form-group {
-      margin-bottom: 1.5rem;
-    }
-    label {
-      display: block;
-      margin-bottom: 0.6rem;
-      font-size: 0.9rem;
-      color: #334155;
-      font-weight: 700;
-    }
-    input {
-      width: 100%;
-      padding: 0.85rem 1rem;
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      box-sizing: border-box;
-      font-size: 1rem;
-      transition: all 0.2s;
-    }
-    input:focus {
-      border-color: #0056b3;
-      outline: none;
-      box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.1);
-    }
-
-    /* ログインボタン（画像通りの濃い青） */
-    .login-btn {
-      width: 100%;
-      padding: 1rem;
-      background: #0056b3;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-weight: 700;
-      cursor: pointer;
-      font-size: 1.1rem;
-      margin-top: 1rem;
-      transition: background 0.2s;
-    }
-    .login-btn:hover {
-      background: #004494;
-    }
-
-    /* 下部リンク */
-    .footer-links {
-      text-align: center;
-      margin-top: 2rem;
-      font-size: 0.85rem;
-      color: #64748b;
-    }
-    .footer-links a {
-      color: #0056b3;
-      text-decoration: none;
-      font-weight: 500;
-    }
-    .footer-links a:hover {
-      text-decoration: underline;
-    }
-    .signup-area {
-      margin-top: 1rem;
-      padding-top: 1.5rem;
-      border-top: 1px solid #f1f5f9;
-    }
-  </style>
-
-  <div class="login-container">
-    <div class="login-card">
-      <div class="logo">SBTフリーランス</div>
-      <div class="subtitle">メンバー専用ポータル</div>
-      
-      <form action="/api/login-check.php" method="POST">
-        <div class="form-group">
-          <label for="email">メールアドレス</label>
-          <input 
-            type="email" 
-            id="email"
-            name="email" 
-            required 
-            placeholder="example@sbt-inc.co.jp" 
-          />
+<Layout title="ログイン | SBTフリーランス・メンバーポータル">
+  <main class="min-h-screen bg-slate-50 flex items-center justify-center px-6 py-12">
+    <div class="max-w-md w-full">
+      <div class="text-center mb-10">
+        <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-2xl shadow-xl shadow-blue-500/30 mb-6">
+          <span class="text-white font-black text-2xl">S</span>
         </div>
-        <div class="form-group">
-          <label for="password">パスワード</label>
-          <input 
-            type="password" 
-            id="password"
-            name="password" 
-            required 
-            placeholder="••••••••"
-          />
-        </div>
-        <button type="submit" class="login-btn">ログイン</button>
-      </form>
+        <h1 class="text-3xl font-black text-slate-900 tracking-tight mb-2">MEMBER LOGIN</h1>
+        <p class="text-slate-500 text-sm font-medium">SBTフリーランス・メンバー専用ポータル</p>
+      </div>
 
-      <div class="footer-links">
-        <a href="/password-reset">パスワードを忘れた方はこちら</a>
-        <div class="signup-area">
-          アカウントをお持ちでない方は 
-          <a href="/register">新規会員登録</a>
+      <div class="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-200 p-8 md:p-10">
+        
+        <div id="error-container" class="hidden mb-6 p-4 rounded-xl bg-red-50 border border-red-100 flex items-start gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500 mt-0.5 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+          </svg>
+          <p id="error-message" class="text-sm font-bold text-red-600 leading-relaxed"></p>
+        </div>
+
+        <form action="/api/login-check.php" method="POST" class="space-y-6">
+          <div>
+            <label for="email" class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">メールアドレス</label>
+            <input 
+              type="email" 
+              name="email" 
+              id="email" 
+              required 
+              placeholder="example@sbt-inc.co.jp"
+              class="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-900 placeholder:text-slate-300"
+            />
+          </div>
+
+          <div>
+            <label for="password" class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">パスワード</label>
+            <input 
+              type="password" 
+              name="password" 
+              id="password" 
+              required 
+              placeholder="••••••••"
+              class="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-900 placeholder:text-slate-300"
+            />
+          </div>
+
+          <button 
+            type="submit" 
+            class="w-full bg-blue-600 text-white font-black py-4 rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2 group"
+          >
+            ログイン
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </button>
+        </form>
+
+        <div class="mt-8 pt-8 border-t border-slate-100 text-center">
+          <p class="text-slate-400 text-xs">
+            アカウントをお持ちでないですか？<br class="md:hidden" />
+            <a href="https://sbt-inc.co.jp/contact" class="text-blue-600 font-bold hover:underline ml-1">新規登録はこちら</a>
+          </p>
         </div>
       </div>
+
+      <p class="text-center mt-10 text-slate-400 text-[10px] font-medium uppercase tracking-tighter">
+        &copy; 2026 SBT Inc. All rights reserved.
+      </p>
     </div>
-  </div>
+  </main>
+
+  <script is:inline>
+    // --- URLパラメータからエラーを判定して表示するロジック ---
+    function handleError() {
+      const params = new URLSearchParams(window.location.search);
+      const errorType = params.get('error');
+
+      if (errorType) {
+        const container = document.getElementById('error-container');
+        const message = document.getElementById('error-message');
+
+        if (container && message) {
+          // 非表示を解除
+          container.classList.remove('hidden');
+
+          // エラーの種類に応じて文言を切り替え
+          if (errorType === 'login_failed') {
+            message.textContent = 'メールアドレスまたはパスワードが正しくありません。';
+          } else if (errorType === 'unauthorized') {
+            message.textContent = 'セッションが終了したか、ログインが必要です。';
+          } else {
+            message.textContent = '予期せぬエラーが発生しました。';
+          }
+        }
+      }
+    }
+
+    // 実行
+    handleError();
+  </script>
 </Layout>

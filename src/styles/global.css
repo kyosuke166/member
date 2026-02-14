@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+/* これだけで base, components, utilities がすべて読み込まれます */
+
+body {
+    @apply bg-slate-50 text-slate-900;
+}

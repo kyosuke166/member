@@ -1,0 +1,121 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="ダッシュボード | SBTフリーランス">
+  <main id="dashboard-content" class="min-h-screen invisible transition-opacity duration-300">
+    <nav class="bg-white border-b border-slate-200 px-6 py-4 sticky top-0 z-50 shadow-sm">
+      <div class="max-w-6xl mx-auto flex justify-between items-center">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-black text-xs shadow-lg shadow-blue-500/30">S</div>
+          <div class="font-black text-slate-800 text-xl tracking-tighter italic">SBT PORTAL</div>
+        </div>
+        <div class="flex items-center gap-6">
+          <span id="user-name-display" class="text-sm font-bold text-slate-600 hidden md:block"></span>
+          <a href="/api/logout.php" class="text-xs font-bold text-slate-400 hover:text-red-500 transition-colors py-2">ログアウト</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="max-w-6xl mx-auto px-6 py-10">
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+        <div>
+          <h1 id="welcome-message" class="text-3xl font-black text-slate-900 tracking-tight"></h1>
+          <p class="text-slate-50 text-[10px] mt-3 inline-block bg-slate-800 px-3 py-1 rounded-full font-bold">ステータス：案件探し中</p>
+        </div>
+        <div class="flex gap-2">
+          <button class="bg-white border border-slate-200 text-slate-700 px-4 py-2 rounded-xl text-xs font-bold hover:bg-slate-50 transition-all shadow-sm">
+            設定変更
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+          <p class="text-slate-400 text-[10px] font-bold mb-1 uppercase tracking-widest">マッチング度</p>
+          <div class="flex items-end gap-2">
+            <span class="text-3xl font-black text-blue-600">85</span>
+            <span class="text-sm font-bold text-slate-400 mb-1">%</span>
+          </div>
+        </div>
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+          <p class="text-slate-400 text-[10px] font-bold mb-1 uppercase tracking-widest">新着の非公開案件</p>
+          <p class="text-3xl font-black text-slate-800">12 <span class="text-xs text-slate-400">件</span></p>
+        </div>
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+          <p class="text-slate-400 text-[10px] font-bold mb-1 uppercase tracking-widest">次回更新日</p>
+          <p class="text-xl font-black text-slate-800">2026/03/01</p>
+        </div>
+      </div>
+
+      <div class="bg-slate-900 rounded-3xl p-8 md:p-12 text-white relative overflow-hidden shadow-2xl">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl -mr-32 -mt-32"></div>
+        
+        <div class="relative z-10">
+          <div class="flex items-center gap-2 mb-6">
+            <span class="bg-yellow-500 text-slate-900 text-[10px] font-black px-2 py-0.5 rounded italic">EXCLUSIVE</span>
+            <h2 class="text-xl font-bold">あなたへの特別オファー</h2>
+          </div>
+          
+          <div class="grid md:grid-cols-2 gap-8 items-center">
+            <div>
+              <p class="text-slate-400 text-sm leading-relaxed mb-6">
+                現在、Java/AWS環境のフルリモート案件（月額〜100万円）で、あなたの経歴に興味を持っているクライアントがいます。
+              </p>
+              <a href="/projects" class="inline-flex items-center gap-2 bg-white text-slate-900 px-8 py-3.5 rounded-xl font-bold text-sm hover:bg-yellow-500 transition-all shadow-xl shadow-white/5">
+                案件の詳細を見る
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+              </a>
+            </div>
+            <div class="hidden md:block">
+              <div class="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
+                <p class="text-[10px] text-slate-500 mb-2 tracking-widest uppercase">Agent Memo</p>
+                <p class="text-sm italic text-slate-300">「昨日のアップデートで追加されたばかりの優良案件です。早めのエントリーをお勧めします。」</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script is:inline>
+    async function checkAuth() {
+      try {
+        const res = await fetch('/api/check-session.php');
+        const data = await res.json();
+
+        if (!data.isLoggedIn) {
+          // 追い出し
+          window.location.href = '/?error=unauthorized';
+          return;
+        }
+
+        // --- 氏名の表示反映 ---
+        // 「姓 名 様」の形式
+        const fullNameWithHonorific = data.userName + ' 様';
+        
+        const nameDisplay = document.getElementById('user-name-display');
+        const welcomeMsg = document.getElementById('welcome-message');
+
+        if (nameDisplay) nameDisplay.textContent = fullNameWithHonorific;
+        if (welcomeMsg) welcomeMsg.textContent = fullNameWithHonorific;
+
+        // 準備ができたら表示
+        const content = document.getElementById('dashboard-content');
+        if (content) {
+          content.classList.remove('invisible');
+          content.classList.add('opacity-100');
+        }
+
+      } catch (e) {
+        console.error('Auth error:', e);
+        window.location.href = '/';
+      }
+    }
+
+    checkAuth();
+  </script>
+</Layout>

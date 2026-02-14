@@ -1,4 +1,7 @@
 ---
+// Tailwind v4 をプロジェクトに反映させるために必要
+import '../styles/global.css';
+
 // 親（各ページ）から渡されるプロパティを受け取る
 interface Props {
     title?: string;
@@ -17,7 +20,7 @@ const { title = "SBTフリーランス" } = Astro.props;
         <meta name="generator" content={Astro.generator} />
         <title>{title}</title>
     </head>
-    <body>
+    <body class="bg-slate-50 text-slate-900">
         <slot />
     </body>
 </html>
@@ -34,13 +37,13 @@ const { title = "SBTフリーランス" } = Astro.props;
     /* プレースホルダーの色をサイト全体で統一（薄め） */
     input::placeholder,
     textarea::placeholder {
-        color: #dddddd; /* slate-400 */
+        color: #94a3b8; /* Tailwindのslate-400相当 */
         opacity: 1;    /* Firefoxでの透明度リセット */
     }
 
-    /* フォーカス時のプレースホルダー色（さらに入力を邪魔しない色へ） */
+    /* フォーカス時のプレースホルダー色 */
     input:focus::placeholder,
     textarea:focus::placeholder {
-        color: #eeeeee; /* slate-300 */
+        color: #cbd5e1; /* Tailwindのslate-300相当 */
     }
 </style>

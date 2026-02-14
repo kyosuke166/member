@@ -1,23 +1,46 @@
+---
+// 親（各ページ）から渡されるプロパティを受け取る
+interface Props {
+    title?: string;
+}
+
+const { title = "SBTフリーランス" } = Astro.props;
+---
+
 <!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
-	</head>
-	<body>
-		<slot />
-	</body>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="icon" href="/favicon.ico" />
+        <meta name="generator" content={Astro.generator} />
+        <title>{title}</title>
+    </head>
+    <body>
+        <slot />
+    </body>
 </html>
 
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
+<style is:global>
+    /* サイト全体の共通設定 */
+    html,
+    body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    /* プレースホルダーの色をサイト全体で統一（薄め） */
+    input::placeholder,
+    textarea::placeholder {
+        color: #dddddd; /* slate-400 */
+        opacity: 1;    /* Firefoxでの透明度リセット */
+    }
+
+    /* フォーカス時のプレースホルダー色（さらに入力を邪魔しない色へ） */
+    input:focus::placeholder,
+    textarea:focus::placeholder {
+        color: #eeeeee; /* slate-300 */
+    }
 </style>

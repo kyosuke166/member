@@ -1,0 +1,40 @@
+---
+// 管理者専用ログイン画面
+const title = "管理者ログイン | SBT-INC Admin";
+---
+
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <style>
+      body { font-family: sans-serif; background: #1a202c; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+      .admin-card { background: #2d3748; padding: 2.5rem; border-radius: 8px; width: 100%; max-width: 380px; color: white; }
+      h1 { font-size: 1.25rem; text-align: center; margin-bottom: 2rem; letter-spacing: 2px; color: #a0aec0; }
+      .form-group { margin-bottom: 1.5rem; }
+      label { display: block; margin-bottom: 0.5rem; font-size: 0.75rem; text-transform: uppercase; color: #a0aec0; }
+      input { width: 100%; padding: 0.75rem; background: #1a202c; border: 1px solid #4a5568; border-radius: 4px; color: white; box-sizing: border-box; }
+      .admin-btn { width: 100%; padding: 0.8rem; background: #4a5568; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+      .admin-btn:hover { background: #718096; }
+      .back-to-top { display: block; text-align: center; margin-top: 1.5rem; font-size: 0.75rem; color: #718096; text-decoration: none; }
+    </style>
+  </head>
+  <body>
+    <div class="admin-card">
+      <h1>ADMIN PANEL</h1>
+      <form>
+        <div class="form-group">
+          <label>Admin ID</label>
+          <input type="text" name="admin-id" />
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" name="password" />
+        </div>
+        <button type="submit" class="admin-btn">ENTER SYSTEM</button>
+      </form>
+      <a href="/" class="back-to-top">← メンバーサイトへ戻る</a>
+    </div>
+  </body>
+</html>

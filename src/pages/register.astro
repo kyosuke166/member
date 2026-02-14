@@ -1,0 +1,46 @@
+---
+import Layout from '../layouts/Layout.astro';
+const title = "新規メンバー登録（仮登録） | SBTフリーランス";
+---
+
+<Layout>
+  <style>
+    /* ページ固有のスタイル */
+    :root { --primary: #2563eb; --primary-hover: #1d4ed8; --bg: #f8fafc; --text: #1e293b; --border: #cbd5e1; }
+    body { background: var(--bg); color: var(--text); margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+    .container { max-width: 450px; width: 90%; background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+    .header { text-align: center; margin-bottom: 30px; }
+    h1 { font-size: 1.5rem; margin-bottom: 12px; color: #0f172a; }
+    p { font-size: 0.9rem; color: #64748b; line-height: 1.5; }
+    
+    .field { margin-bottom: 25px; }
+    label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.85rem; }
+    input { width: 100%; padding: 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
+    input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+    
+    .btn-submit { background: var(--primary); color: white; padding: 16px; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: background 0.2s; width: 100%; }
+    .btn-submit:hover { background: var(--primary-hover); }
+    
+    .info-box { background: #eff6ff; border-radius: 8px; padding: 15px; margin-top: 25px; font-size: 0.8rem; color: #1e40af; }
+  </style>
+
+  <div class="container">
+    <div class="header">
+      <h1>【SBTフリーランス】<br>まずは仮登録から</h1>
+      <p>ご入力いただいたメールアドレス宛に、<br>本登録用のURLをお送りします。</p>
+    </div>
+
+    <form action="/api/register-temp.php" method="POST">
+      <div class="field">
+        <label for="email">メールアドレス</label>
+        <input type="email" id="email" name="email" placeholder="example@sbt-inc.co.jp" required />
+      </div>
+
+      <button type="submit" class="btn-submit">確認メールを送信する</button>
+    </form>
+
+    <div class="info-box">
+      ※ 迷惑メール設定をされている方は「sbt-inc.co.jp」からのメールを受信できるように設定をお願いします。
+    </div>
+  </div>
+</Layout>

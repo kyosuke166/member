@@ -1,0 +1,46 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout>
+  <style>
+    :root { --primary: #2563eb; --text: #334155; --bg: #f8fafc; }
+    body { background: var(--bg); font-family: 'Inter', sans-serif; line-height: 1.8; color: var(--text); padding: 40px 20px; }
+    .container { max-width: 800px; margin: 0 auto; background: white; padding: 60px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+    h1 { font-size: 1.8rem; text-align: center; margin-bottom: 40px; color: #1e293b; }
+    h2 { font-size: 1.2rem; margin-top: 40px; margin-bottom: 15px; border-bottom: 2px solid var(--primary); display: inline-block; }
+    p { margin-bottom: 15px; }
+    ul { margin-bottom: 20px; padding-left: 20px; }
+    .footer-link { text-align: center; margin-top: 40px; }
+    .back-btn { color: var(--primary); text-decoration: none; font-weight: bold; }
+  </style>
+
+  <div class="container">
+    <h1>利用規約</h1>
+
+    <p>この利用規約（以下，「本規約」といいます。）は，SBTフリーランス（以下，「当事務局」といいます。）が提供するサービス（以下，「本サービス」といいます。）の利用条件を定めるものです。登録利用者の皆さまには，本規約に従って，本サービスをご利用いただきます。</p>
+
+    <h2>第1条（適用）</h2>
+    <p>本規約は，ユーザーと当事務局との間の本サービスの利用に関わる一切の関係に適用されるものとします。</p>
+
+    <h2>第2条（利用登録）</h2>
+    <p>本サービスにおいては，登録希望者が本規約に同意の上，当事務局の定める方法によって利用登録を申請し，当事務局がこれを承認することによって，利用登録が完了するものとします。</p>
+
+    <h2>第3条（パスワードおよびユーザーIDの管理）</h2>
+    <p>ユーザーは，自己の責任において，本サービスのパスワードおよびユーザーIDを適切に管理するものとします。</p>
+
+    <h2>第4条（禁止事項）</h2>
+    <p>ユーザーは，本サービスの利用にあたり，以下の行為をしてはなりません。</p>
+    <ul>
+      <li>法令または公序良俗に違反する行為</li>
+      <li>犯罪行為に関連する行為</li>
+      <li>当事務局のサーバーまたはネットワークの機能を破壊したり，妨害したりする行為</li>
+      <li>当事務局のサービスの運営を妨害するおそれのある行為</li>
+      <li>他のユーザーに関する個人情報等を収集または蓄積する行為</li>
+    </ul>
+
+    <h2>第5条（個人情報の取扱い）</h2>
+    <p>当事務局は，本サービスの利用によって取得する個人情報については，当事務局「プライバシーポリシー」に従い適切に取り扱うものとします。</p>
+
+  </div>
+</Layout>

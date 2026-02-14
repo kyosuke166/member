@@ -1,0 +1,51 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="本登録完了 | SBTフリーランス">
+  <style>
+    :root { --primary: #2563eb; --text: #334155; --bg: #f8fafc; }
+    body { background: var(--bg); font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
+    .container { max-width: 500px; width: 100%; background: white; padding: 60px 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center; }
+    
+    /* チェックマークのアニメーション */
+    .success-icon { width: 80px; height: 80px; background: #dcfce7; color: #22c55e; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 30px; font-size: 40px; }
+    
+    h1 { font-size: 1.8rem; color: #1e293b; margin-bottom: 16px; }
+    p { color: #64748b; line-height: 1.6; margin-bottom: 30px; }
+    
+    .next-steps { background: #f1f5f9; padding: 20px; border-radius: 12px; text-align: left; margin-bottom: 30px; }
+    .next-steps h2 { font-size: 0.95rem; color: #475569; margin-bottom: 10px; }
+    .next-steps ul { padding-left: 20px; margin: 0; color: #64748b; font-size: 0.9rem; }
+    .next-steps li { margin-bottom: 8px; }
+
+    .btn-login { display: block; background: var(--primary); color: white; padding: 16px; border-radius: 8px; font-size: 1.1rem; font-weight: bold; text-decoration: none; transition: transform 0.2s, background 0.2s; }
+    .btn-login:hover { background: #1d4ed8; transform: translateY(-2px); }
+    
+    .home-link { display: block; margin-top: 20px; color: #94a3b8; font-size: 0.9rem; text-decoration: none; }
+    .home-link:hover { text-decoration: underline; }
+  </style>
+
+  <div class="container">
+    <div class="success-icon">✓</div>
+    
+    <h1>本登録が完了しました！</h1>
+    <p>
+      SBTフリーランスへのメンバー登録、誠にありがとうございます。<br>
+      あなたにぴったりの案件探しをサポートいたします。
+    </p>
+
+    <div class="next-steps">
+      <h2>これからの流れ</h2>
+      <ul>
+        <li>ログインして最新の案件情報をチェック</li>
+        <li>マイページから詳細なスキル情報の追加</li>
+        <li>担当エージェントからの面談連絡（順次）</li>
+      </ul>
+    </div>
+
+    <a href="/" class="btn-login">ログイン画面へ移動する</a>
+    
+    <a href="/" class="home-link">トップページに戻る</a>
+  </div>
+</Layout>

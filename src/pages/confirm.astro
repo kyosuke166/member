@@ -2,46 +2,49 @@
 import Layout from '../layouts/Layout.astro';
 ---
 
-<Layout title="プロフィール入力 | SBTフリーランス">
+<Layout title="プロフィール入力 | SBTフリーランス" isLoggedIn={false}>
+  <nav class="bg-white border-b border-slate-200 px-6 py-4 sticky top-0 z-50 shadow-sm">
+    <div class="max-w-6xl mx-auto">
+      <div class="flex items-center gap-2 no-underline">
+        <div class="w-8 h-8 rounded-lg overflow-hidden shadow-sm">
+          <img src="/apple-touch-icon.png" alt="SBT Logo" class="w-full h-full object-cover" />
+        </div>
+        <div class="font-black text-slate-800 text-xl tracking-tighter italic">
+          SBTフリーランス
+        </div>
+      </div>
+    </div>
+  </nav>
+
   <style>
     :root { --primary: #2563eb; --border: #cbd5e1; --bg: #f8fafc; }
-    body { background: var(--bg); font-family: 'Inter', sans-serif; padding: 40px 20px; }
-    .container { max-width: 700px; margin: 0 auto; background: white; padding: 40px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
-    h1 { font-size: 1.5rem; text-align: center; margin-bottom: 30px; line-height: 1.4; }
+    .container { max-width: 700px; margin: 40px auto; background: white; padding: 40px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    h1 { font-size: 1.5rem; text-align: center; margin-bottom: 30px; line-height: 1.4; font-weight: 800; }
     section { margin-bottom: 35px; padding-bottom: 10px; border-bottom: 1px solid #f1f5f9; }
-    h2 { font-size: 1.1rem; color: var(--primary); margin-bottom: 20px; border-left: 4px solid var(--primary); padding-left: 12px; }
-    
+    h2 { font-size: 1.1rem; color: var(--primary); margin-bottom: 20px; border-left: 4px solid var(--primary); padding-left: 12px; font-weight: 700; }
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px 20px; }
     .full-width { grid-column: span 2; }
     .field { margin-bottom: 15px; }
-    
     label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.85rem; color: #475569; }
     .required-badge { background: #fee2e2; color: #ef4444; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; margin-right: 8px; vertical-align: middle; }
-    
+    .optional-badge { background: #f1f5f9; color: #64748b; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; margin-right: 8px; vertical-align: middle; }
     input, select, textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; font-size: 0.95rem; }
     input:focus, select:focus, textarea:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
-    
-    /* 駅入力のレイアウト */
-    .station-flex { display: flex; align-items: center; gap: 8px; }
-    .station-unit { font-size: 0.9rem; color: #475569; white-space: nowrap; }
-
-    .exp-flex { display: flex; align-items: center; gap: 10px; }
-    .exp-flex input { width: 80px; text-align: right; }
-    .exp-unit { font-size: 0.9rem; color: #475569; white-space: nowrap; }
-
+    .unit-flex { display: flex; align-items: center; gap: 8px; }
+    .unit { font-size: 0.9rem; color: #475569; white-space: nowrap; }
     .btn-submit { background: var(--primary); color: white; padding: 18px; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; width: 100%; margin-top: 20px; transition: background 0.2s; }
     .btn-submit:hover { background: #1d4ed8; }
-    
     #loading-overlay { text-align: center; padding: 100px; font-size: 1.2rem; color: var(--primary); }
     .error-msg { text-align: center; color: #ef4444; padding: 40px; }
+    .note { font-size: 0.75rem; color: #64748b; margin-top: 5px; line-height: 1.4; }
   </style>
 
   <div id="loading-overlay">認証情報を確認中...</div>
 
   <div class="container" id="main-content" style="display: none;">
-    <h1>【SBTフリーランス】<br>本登録：プロフィール入力</h1>
+    <h1>本登録：プロフィール入力</h1>
     
-    <form action="/api/register-final.php" method="POST" id="registration-form">
+    <form action="/api/register-final.php" method="POST" id="registration-form" enctype="multipart/form-data">
       <input type="hidden" name="email" id="hidden-email" />
       <input type="hidden" name="key" id="hidden-key" />
       <input type="hidden" name="location" id="hidden-location" />
@@ -53,14 +56,26 @@ import Layout from '../layouts/Layout.astro';
           <div class="field"><label><span class="required-badge">必須</span>名</label><input type="text" name="first_name" placeholder="太郎" required /></div>
           <div class="field"><label><span class="required-badge">必須</span>セイ（カナ）</label><input type="text" name="last_name_kana" placeholder="ヤマダ" required /></div>
           <div class="field"><label><span class="required-badge">必須</span>メイ（カナ）</label><input type="text" name="first_name_kana" placeholder="タロウ" required /></div>
+          <div class="field">
+            <label><span class="required-badge">必須</span>性別</label>
+            <select name="gender" required>
+              <option value="">選択してください</option>
+              <option value="1">男性</option>
+              <option value="2">女性</option>
+            </select>
+          </div>
           <div class="field"><label><span class="required-badge">必須</span>生年月日</label><input type="date" name="birthday" required /></div>
           <div class="field"><label><span class="required-badge">必須</span>電話番号</label><input type="tel" name="tel" placeholder="0X0-XXXX-XXXX" required /></div>
+          <div class="field">
+            <label><span class="required-badge">必須</span>国籍</label>
+            <input type="text" name="nationality" placeholder="日本" required />
+          </div>
           <div class="field full-width"><label><span class="required-badge">必須</span>パスワード</label><input type="password" name="password" minlength="8" maxlength="72" placeholder="8文字以上" required /></div>
         </div>
       </section>
 
       <section>
-        <h2>稼働・スキル情報</h2>
+        <h2>稼働・案件のご希望</h2>
         <div class="form-grid">
           <div class="field">
             <label><span class="required-badge">必須</span>現在の属性</label>
@@ -72,11 +87,9 @@ import Layout from '../layouts/Layout.astro';
           </div>
           <div class="field">
             <label><span class="required-badge">必須</span>お住まい</label>
-            <div class="station-flex">
-              <input type="text" id="input-line" placeholder="山手" required />
-              <span class="station-unit">線</span>
-              <input type="text" id="input-station" placeholder="池袋" required />
-              <span class="station-unit">駅</span>
+            <div class="unit-flex">
+              <input type="text" id="input-line" placeholder="山手" required />線
+              <input type="text" id="input-station" placeholder="池袋" required />駅
             </div>
           </div>
           <div class="field">
@@ -85,7 +98,6 @@ import Layout from '../layouts/Layout.astro';
               <option value="フロントエンドエンジニア">フロントエンドエンジニア</option>
               <option value="バックエンドエンジニア">バックエンドエンジニア</option>
               <option value="インフラエンジニア">インフラエンジニア</option>
-              <option value="ネットワークエンジニア">ネットワークエンジニア</option>
               <option value="PM/ディレクター">PM/ディレクター</option>
               <option value="デザイナー">デザイナー</option>
               <option value="複数該当">複数該当</option>
@@ -93,43 +105,65 @@ import Layout from '../layouts/Layout.astro';
             </select>
           </div>
           <div class="field">
-            <label><span class="required-badge">必須</span>エンジニア経験年数</label>
-            <div class="exp-flex">
-              <input type="number" name="exp_y" min="0" max="50" value="0" required />
-              <span class="exp-unit">年</span>
-              <input type="number" name="exp_m" min="0" max="11" value="0" required />
-              <span class="exp-unit">ヶ月</span>
+            <label><span class="required-badge">必須</span>希望単金（月額）</label>
+            <div class="unit-flex">
+              <input type="number" name="desired_rate" placeholder="80" required /><span class="unit">万円程度</span>
             </div>
           </div>
-          <div class="field full-width">
+          <div class="field">
             <label><span class="required-badge">必須</span>稼働可能時期</label>
             <select name="availability" id="availability-select" required>
               <option value="即日〜">即日〜</option>
               <option value="ご相談">ご相談</option>
             </select>
           </div>
-          <div class="field full-width">
-            <label>主要スキル</label>
-            <input type="text" name="skills" placeholder="React, PHP, AWS, Dockerなど" />
+          <div class="field">
+            <label><span class="required-badge">必須</span>現在の就業状況</label>
+            <select name="work_status" required>
+              <option value="離職中（即稼働可）">離職中（即稼働可）</option>
+              <option value="就業中（案件探し中）">就業中（案件探し中）</option>
+              <option value="就業中（良い案件があれば）">就業中（良い案件があれば）</option>
+            </select>
           </div>
         </div>
       </section>
 
       <section>
-        <h2>自己紹介・略歴</h2>
-        <div class="field">
-          <textarea name="bio" rows="5" placeholder="経歴や得意業務、案件条件などをご記入ください。"></textarea>
+        <h2>スキル・提出資料</h2>
+        <div class="form-grid">
+          <div class="field">
+            <label><span class="required-badge">必須</span>エンジニア経験年数</label>
+            <div class="unit-flex">
+              <input type="number" name="exp_y" min="0" max="50" value="0" required /><span class="unit">年</span>
+              <input type="number" name="exp_m" min="0" max="11" value="0" required /><span class="unit">ヶ月</span>
+            </div>
+          </div>
+          <div class="field">
+            <label><span class="optional-badge">任意</span>GitHub URL</label>
+            <input type="url" name="github_url" placeholder="https://github.com/..." />
+          </div>
+          <div class="field full-width">
+            <label><span class="optional-badge">任意</span>主要スキル</label>
+            <input type="text" name="skills" placeholder="React, PHP, AWSなど" />
+          </div>
+          <div class="field full-width">
+            <label><span class="optional-badge">任意</span>スキルシートのアップロード</label>
+            <input type="file" name="skill_sheet" accept=".pdf,.doc,.docx" />
+            <p class="note text-red-500 font-bold">※スキルシートのご提出がない場合、企業様への具体的なご提案ができません。</p>
+          </div>
+          <div class="field full-width">
+            <label>自己紹介・略歴</label>
+            <textarea name="bio" rows="4" placeholder="これまでの実績などをご記入ください。"></textarea>
+          </div>
         </div>
       </section>
 
-      <section>
-        <div class="field full-width" style="text-align: center; margin-top: 20px;">
-          <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 15px;">
-            <a href="/terms" target="_blank" style="color: var(--primary); text-decoration: underline;">利用規約</a> および <a href="/privacy" target="_blank" style="color: var(--primary); text-decoration: underline;">プライバシーポリシー</a> に同意の上、送信してください。
-          </p>
-          <button type="submit" class="btn-submit">規約に同意して本登録を完了する</button>
-        </div>
-      </section>
+      <div class="field full-width" style="text-align: center; margin-top: 20px;">
+        <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 15px;">
+          <a href="/terms" target="_blank" style="color: var(--primary); text-decoration: underline;">利用規約</a> および <a href="/privacy" target="_blank" style="color: var(--primary); text-decoration: underline;">プライバシーポリシー</a> に同意の上、送信してください。
+        </p>
+        <button type="submit" class="btn-submit">規約に同意して本登録を完了する</button>
+      </div>
     </form>
   </div>
 
@@ -142,33 +176,26 @@ import Layout from '../layouts/Layout.astro';
   </div>
 </Layout>
 
-<script>
-  // 稼働可能時期の月を動的に生成
+<script is:inline>
   function setupAvailability() {
     const select = document.getElementById('availability-select');
     if (!select) return;
     const now = new Date();
-    const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-    const afterNextMonth = new Date(now.getFullYear(), now.getMonth() + 2, 1);
-    const options = [
-      { val: `${nextMonth.getMonth() + 1}月〜`, label: `${nextMonth.getMonth() + 1}月〜` },
-      { val: `${afterNextMonth.getMonth() + 1}月〜`, label: `${afterNextMonth.getMonth() + 1}月〜` }
-    ];
-    options.forEach((opt, index) => {
-      const newOpt = document.createElement('option');
-      newOpt.value = opt.val;
-      newOpt.textContent = opt.label;
-      select.insertBefore(newOpt, select.options[index + 1]);
-    });
+    for (let i = 1; i <= 3; i++) {
+      const target = new Date(now.getFullYear(), now.getMonth() + i, 1);
+      const val = `${target.getMonth() + 1}月〜`;
+      const opt = document.createElement('option');
+      opt.value = val;
+      opt.textContent = val;
+      select.insertBefore(opt, select.options[select.options.length - 1]);
+    }
   }
 
-  // フォーム送信時に駅入力を結合する
   function setupFormSubmit() {
     const form = document.getElementById('registration-form');
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', () => {
       const line = document.getElementById('input-line').value;
       const station = document.getElementById('input-station').value;
-      // 「○○線 △△駅」の形式で結合
       document.getElementById('hidden-location').value = `${line}線 ${station}駅`;
     });
   }
@@ -176,19 +203,16 @@ import Layout from '../layouts/Layout.astro';
   async function verify() {
     setupAvailability();
     setupFormSubmit();
-
     const params = new URLSearchParams(window.location.search);
     const v = params.get('v');
     const key = params.get('key');
     const loading = document.getElementById('loading-overlay');
     const main = document.getElementById('main-content');
     const error = document.getElementById('error-content');
-
     if (!v || !key) {
       loading.style.display = 'none'; error.style.display = 'block';
       document.getElementById('error-text').textContent = "URLが正しくありません。"; return;
     }
-
     try {
       const res = await fetch(`/api/check-token.php?v=${v}&key=${key}`);
       const data = await res.json();

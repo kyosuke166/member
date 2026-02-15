@@ -2,50 +2,59 @@
 import Layout from '../layouts/Layout.astro';
 ---
 
-<Layout title="本登録完了 | SBTフリーランス">
-  <style>
-    :root { --primary: #2563eb; --text: #334155; --bg: #f8fafc; }
-    body { background: var(--bg); font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
-    .container { max-width: 500px; width: 100%; background: white; padding: 60px 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center; }
-    
-    /* チェックマークのアニメーション */
-    .success-icon { width: 80px; height: 80px; background: #dcfce7; color: #22c55e; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 30px; font-size: 40px; }
-    
-    h1 { font-size: 1.8rem; color: #1e293b; margin-bottom: 16px; }
-    p { color: #64748b; line-height: 1.6; margin-bottom: 30px; }
-    
-    .next-steps { background: #f1f5f9; padding: 20px; border-radius: 12px; text-align: left; margin-bottom: 30px; }
-    .next-steps h2 { font-size: 0.95rem; color: #475569; margin-bottom: 10px; }
-    .next-steps ul { padding-left: 20px; margin: 0; color: #64748b; font-size: 0.9rem; }
-    .next-steps li { margin-bottom: 8px; }
+<Layout title="本登録完了 | SBTフリーランス" isLoggedIn={false}>
+  <main class="min-h-[calc(100vh-200px)] flex items-center justify-center px-6 py-12">
+    <div class="max-w-md w-full">
+      
+      <div class="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-200 p-8 md:p-12 text-center">
+        <div class="w-20 h-20 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-8 animate-bounce">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
 
-    .btn-login { display: block; background: var(--primary); color: white; padding: 16px; border-radius: 8px; font-size: 1.1rem; font-weight: bold; text-decoration: none; transition: transform 0.2s, background 0.2s; }
-    .btn-login:hover { background: #1d4ed8; transform: translateY(-2px); }
-    
-    .home-link { display: block; margin-top: 20px; color: #94a3b8; font-size: 0.9rem; text-decoration: none; }
-    .home-link:hover { text-decoration: underline; }
-  </style>
+        <h1 class="text-2xl md:text-3xl font-black text-slate-900 tracking-tight mb-4">
+          本登録が完了しました！
+        </h1>
+        
+        <p class="text-slate-500 text-sm font-medium leading-relaxed mb-10">
+          SBTフリーランスへの登録、誠にありがとうございます。<br />
+          あなたにぴったりの案件探しをサポートいたします。
+        </p>
 
-  <div class="container">
-    <div class="success-icon">✓</div>
-    
-    <h1>本登録が完了しました！</h1>
-    <p>
-      SBTフリーランスへのメンバー登録、誠にありがとうございます。<br>
-      あなたにぴったりの案件探しをサポートいたします。
-    </p>
+        <div class="bg-slate-50 rounded-2xl p-6 text-left mb-10 border border-slate-100">
+          <h2 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+            <span class="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+            これからの流れ
+          </h2>
+          <ul class="space-y-3">
+            <li class="flex items-start gap-3 text-sm font-bold text-slate-600">
+              <span class="text-blue-500 mt-0.5">01</span>
+              <span>ログインして最新の案件情報をチェック</span>
+            </li>
+            <li class="flex items-start gap-3 text-sm font-bold text-slate-600">
+              <span class="text-blue-500 mt-0.5">02</span>
+              <span>マイページから詳細なスキル情報の追加</span>
+            </li>
+            <li class="flex items-start gap-3 text-sm font-bold text-slate-600">
+              <span class="text-blue-500 mt-0.5">03</span>
+              <span>担当エージェントからの面談連絡（順次）</span>
+            </li>
+          </ul>
+        </div>
 
-    <div class="next-steps">
-      <h2>これからの流れ</h2>
-      <ul>
-        <li>ログインして最新の案件情報をチェック</li>
-        <li>マイページから詳細なスキル情報の追加</li>
-        <li>担当エージェントからの面談連絡（順次）</li>
-      </ul>
+        <a 
+          href="/login" 
+          class="w-full bg-blue-600 text-white font-black py-4 rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2 group no-underline"
+        >
+          ログイン画面へ移動する
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+          </svg>
+        </a>
+
+      </div>
+
     </div>
-
-    <a href="/" class="btn-login">ログイン画面へ移動する</a>
-    
-    <a href="/" class="home-link">トップページに戻る</a>
-  </div>
+  </main>
 </Layout>

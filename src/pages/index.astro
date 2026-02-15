@@ -2,13 +2,10 @@
 import Layout from '../layouts/Layout.astro';
 ---
 
-<Layout title="ログイン | SBTフリーランス・メンバーポータル">
-  <main class="min-h-screen bg-slate-50 flex items-center justify-center px-6 py-12">
+<Layout title="ログイン | SBTフリーランス・メンバーポータル" isLoggedIn={false}>
+  <main class="min-h-[calc(100(vh-200px))] bg-slate-50 flex items-center justify-center px-6 py-12">
     <div class="max-w-md w-full">
       <div class="text-center mb-10">
-        <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-2xl shadow-xl shadow-blue-500/30 mb-6">
-          <span class="text-white font-black text-2xl">S</span>
-        </div>
         <h1 class="text-3xl font-black text-slate-900 tracking-tight mb-2">MEMBER LOGIN</h1>
         <p class="text-slate-500 text-sm font-medium">SBTフリーランス・メンバー専用ポータル</p>
       </div>
@@ -73,7 +70,6 @@ import Layout from '../layouts/Layout.astro';
   </main>
 
   <script is:inline>
-    // --- URLパラメータからエラーを判定して表示するロジック ---
     function handleError() {
       const params = new URLSearchParams(window.location.search);
       const errorType = params.get('error');
@@ -83,10 +79,7 @@ import Layout from '../layouts/Layout.astro';
         const message = document.getElementById('error-message');
 
         if (container && message) {
-          // 非表示を解除
           container.classList.remove('hidden');
-
-          // エラーの種類に応じて文言を切り替え
           if (errorType === 'login_failed') {
             message.textContent = 'メールアドレスまたはパスワードが正しくありません。';
           } else if (errorType === 'unauthorized') {
@@ -97,8 +90,6 @@ import Layout from '../layouts/Layout.astro';
         }
       }
     }
-
-    // 実行
     handleError();
   </script>
 </Layout>

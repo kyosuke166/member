@@ -1,0 +1,239 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="プロフィール設定 | SBTフリーランス" isLoggedIn={true}>
+  <style>
+    :root { --primary: #2563eb; --border: #cbd5e1; --bg: #f8fafc; }
+    .container { max-width: 700px; margin: 40px auto; background: white; padding: 40px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    h1 { font-size: 1.5rem; text-align: center; margin-bottom: 30px; line-height: 1.4; font-weight: 800; }
+    .info-banner { background: #f0f7ff; border: 1px solid #e0e7ff; border-radius: 8px; padding: 15px; margin-bottom: 30px; display: flex; gap: 12px; align-items: flex-start; }
+    .info-banner-text { font-size: 0.85rem; color: #1e40af; line-height: 1.6; }
+    .info-banner-text a { font-weight: bold; text-decoration: underline; color: #2563eb; }
+    section { margin-bottom: 35px; padding-bottom: 10px; border-bottom: 1px solid #f1f5f9; }
+    h2 { font-size: 1.1rem; color: var(--primary); margin-bottom: 20px; border-left: 4px solid var(--primary); padding-left: 12px; font-weight: 700; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px 20px; }
+    .full-width { grid-column: span 2; }
+    .field { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.85rem; color: #475569; }
+    .required-badge { background: #fee2e2; color: #ef4444; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; margin-right: 8px; vertical-align: middle; }
+    .optional-badge { background: #f1f5f9; color: #64748b; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; margin-right: 8px; vertical-align: middle; }
+    .readonly-badge { background: #f1f5f9; color: #64748b; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; margin-right: 8px; vertical-align: middle; }
+    input, select, textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; font-size: 0.95rem; }
+    input:read-only { background-color: #f1f5f9; color: #64748b; cursor: not-allowed; border-color: #e2e8f0; }
+    .unit-flex { display: flex; align-items: center; gap: 8px; }
+    .unit { font-size: 0.9rem; color: #475569; white-space: nowrap; }
+    .btn-submit { background: var(--primary); color: white; padding: 18px; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; width: 100%; margin-top: 20px; transition: background 0.2s; }
+    .btn-submit:hover { background: #1d4ed8; }
+    #loading-overlay { text-align: center; padding: 100px; font-size: 1.2rem; color: var(--primary); }
+    .back-link { display: block; text-align: center; margin-top: 20px; color: #64748b; text-decoration: none; font-size: 0.9rem; font-weight: 600; }
+    .note { font-size: 0.75rem; color: #64748b; margin-top: 4px; line-height: 1.4; }
+  </style>
+
+  <div id="loading-overlay">プロフィール情報を読み込み中...</div>
+
+  <div class="container" id="main-content" style="display: none;">
+    <h1>プロフィール設定</h1>
+
+    <div class="info-banner">
+      <div class="info-banner-text">
+        氏名、性別、国籍、生年月日などの固定項目の修正が必要な場合は、お手数ですが<a href="https://sbt-inc.co.jp/contact/" target="_blank" rel="noopener noreferrer">お問い合わせフォーム</a>よりご連絡ください。
+      </div>
+    </div>
+
+    <form id="profile-form" enctype="multipart/form-data">
+      <input type="hidden" name="location" id="hidden-location" />
+
+      <section>
+        <h2>基本情報</h2>
+        <div class="form-grid">
+          <div class="field"><label><span class="readonly-badge">固定</span>姓</label><input type="text" id="last_name" readonly /></div>
+          <div class="field"><label><span class="readonly-badge">固定</span>名</label><input type="text" id="first_name" readonly /></div>
+          <div class="field"><label><span class="readonly-badge">固定</span>セイ（カナ）</label><input type="text" id="last_name_kana" readonly /></div>
+          <div class="field"><label><span class="readonly-badge">固定</span>メイ（カナ）</label><input type="text" id="first_name_kana" readonly /></div>
+          <div class="field"><label><span class="readonly-badge">固定</span>性別</label><input type="text" id="gender_display" readonly /></div>
+          <div class="field"><label><span class="readonly-badge">固定</span>生年月日</label><input type="date" id="birthday" readonly /></div>
+          <div class="field"><label><span class="required-badge">必須</span>電話番号</label><input type="tel" name="tel" id="tel" required /></div>
+          <div class="field"><label><span class="readonly-badge">固定</span>国籍</label><input type="text" id="nationality" readonly /></div>
+        </div>
+      </section>
+
+      <section>
+        <h2>稼働・案件のご希望</h2>
+        <div class="form-grid">
+          <div class="field"><label><span class="required-badge">必須</span>現在の属性</label>
+            <select name="role" id="role" required>
+              <option value="フリーランス">フリーランス</option>
+              <option value="会社員">会社員</option>
+              <option value="法人">法人</option>
+            </select>
+          </div>
+          <div class="field"><label><span class="required-badge">必須</span>お住まい</label>
+            <div class="unit-flex">
+              <input type="text" id="input-line" required placeholder="山手" />線
+              <input type="text" id="input-station" required placeholder="池袋" />駅
+            </div>
+          </div>
+          <div class="field"><label><span class="required-badge">必須</span>メイン職種</label>
+            <select name="job_category" id="job_category" required>
+              <option value="フロントエンドエンジニア">フロントエンドエンジニア</option>
+              <option value="バックエンドエンジニア">バックエンドエンジニア</option>
+              <option value="インフラエンジニア">インフラエンジニア</option>
+              <option value="PM/ディレクター">PM/ディレクター</option>
+              <option value="デザイナー">デザイナー</option>
+              <option value="複数該当">複数該当</option>
+              <option value="その他">その他</option>
+            </select>
+          </div>
+          <div class="field"><label><span class="required-badge">必須</span>希望単金（月額）</label>
+            <div class="unit-flex">
+              <input type="number" name="desired_rate" id="desired_rate" required /><span class="unit">万円程度</span>
+            </div>
+          </div>
+          <div class="field"><label><span class="required-badge">必須</span>稼働可能時期</label>
+            <select name="availability" id="availability-select" required></select>
+          </div>
+          <div class="field"><label><span class="required-badge">必須</span>現在の就業状況</label>
+            <select name="work_status" id="work_status" required>
+              <option value="離職中（即稼働可）">離職中（即稼働可）</option>
+              <option value="就業中（案件探し中）">就業中（案件探し中）</option>
+              <option value="就業中（良い案件があれば）">就業中（良い案件があれば）</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>スキル・提出資料</h2>
+        <div class="form-grid">
+          <div class="field"><label><span class="readonly-badge">固定</span>経験年数</label>
+            <div class="unit-flex">
+              <input type="number" id="exp_y" readonly /><span class="unit">年</span>
+              <input type="number" id="exp_m" readonly /><span class="unit">ヶ月</span>
+            </div>
+            <p class="note">※本登録時の開始日から自動計算されています。</p>
+          </div>
+          <div class="field"><label><span class="optional-badge">任意</span>GitHub URL</label>
+            <input type="url" name="github_url" id="github_url" placeholder="https://github.com/..." />
+          </div>
+          <div class="field full-width"><label><span class="optional-badge">任意</span>主要スキル</label>
+            <input type="text" name="skills" id="skills" placeholder="React, PHP, AWSなど" />
+          </div>
+          <div class="field full-width"><label><span class="optional-badge">任意</span>スキルシートの更新</label>
+            <input type="file" name="skill_sheet" accept=".pdf,.doc,.docx" />
+            <p class="note">※現在のシートを差し替える場合に選択してください。</p>
+            <p class="note text-red-500 font-bold">※スキルシートのご提出がない場合、企業様への具体的なご提案ができません。</p>
+          </div>
+          <div class="field full-width"><label>自己紹介・略歴</label>
+            <textarea name="bio" id="bio" rows="5"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <button type="submit" class="btn-submit" id="submit-btn">設定を保存する</button>
+      <a href="/dashboard" class="back-link">キャンセルして戻る</a>
+    </form>
+  </div>
+
+  <script is:inline>
+    function setupAvailability(dbVal) {
+      const select = document.getElementById('availability-select');
+      const now = new Date();
+      const currentMonth = now.getMonth() + 1;
+      let dbMonth = null;
+      if (dbVal && dbVal.includes('月〜')) dbMonth = parseInt(dbVal.replace('月〜', ''), 10);
+      let isPastMonth = (dbMonth !== null && dbMonth < currentMonth);
+      const optImmediate = document.createElement('option');
+      optImmediate.value = '即日〜'; optImmediate.textContent = '即日〜';
+      if (dbVal === '即日〜') optImmediate.selected = true;
+      select.appendChild(optImmediate);
+      let matchedFuture = false;
+      for (let i = 1; i <= 3; i++) {
+        const t = new Date(now.getFullYear(), now.getMonth() + i, 1);
+        const val = `${t.getMonth() + 1}月〜`;
+        const opt = document.createElement('option');
+        opt.value = val; opt.textContent = val;
+        if (val === dbVal && !isPastMonth) { opt.selected = true; matchedFuture = true; }
+        select.appendChild(opt);
+      }
+      const optDiscuss = document.createElement('option');
+      optDiscuss.value = 'ご相談'; optDiscuss.textContent = 'ご相談';
+      if (isPastMonth || (dbVal === 'ご相談') || (dbVal && dbVal !== '即日〜' && !matchedFuture)) optDiscuss.selected = true;
+      select.appendChild(optDiscuss);
+    }
+
+    async function init() {
+      try {
+        const res = await fetch('/api/get-profile.php');
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+        const headerName = document.getElementById('header-user-name');
+        if (headerName) headerName.textContent = (data.last_name || '') + ' ' + (data.first_name || '') + ' 様';
+        
+        // --- フォーム流し込み ---
+        document.getElementById('last_name').value = data.last_name || '';
+        document.getElementById('first_name').value = data.first_name || '';
+        document.getElementById('last_name_kana').value = data.last_name_kana || '';
+        document.getElementById('first_name_kana').value = data.first_name_kana || '';
+        
+        // 性別コード(1,2)を日本語名称に変換して表示
+        const genderMap = { "1": "男性", "2": "女性" };
+        document.getElementById('gender_display').value = genderMap[data.gender] || '未設定';
+        
+        document.getElementById('birthday').value = data.birthday || '';
+        document.getElementById('tel').value = data.tel || '';
+        document.getElementById('nationality').value = data.nationality || '';
+        
+        document.getElementById('role').value = data.role || 'フリーランス';
+        document.getElementById('job_category').value = data.job_category || '';
+        document.getElementById('desired_rate').value = data.desired_rate || '';
+        document.getElementById('work_status').value = data.work_status || '離職中（即稼働可）';
+        
+        if (data.location) {
+          const parts = data.location.match(/(.*)線\s*(.*)駅/);
+          if (parts) {
+            document.getElementById('input-line').value = parts[1].trim();
+            document.getElementById('input-station').value = parts[2].trim();
+          }
+        }
+        document.getElementById('github_url').value = data.github_url || '';
+        document.getElementById('skills').value = data.skills || '';
+        document.getElementById('bio').value = data.bio || '';
+        
+        if (data.experience && data.experience !== '0000-00-00') {
+          const start = new Date(data.experience);
+          const now = new Date();
+          let years = now.getFullYear() - start.getFullYear();
+          let months = now.getMonth() - start.getMonth();
+          if (months < 0) { years--; months += 12; }
+          document.getElementById('exp_y').value = Math.max(0, years);
+          document.getElementById('exp_m').value = Math.max(0, months);
+        }
+        setupAvailability(data.availability);
+        
+        document.getElementById('loading-overlay').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+      } catch (e) {
+        console.error(e);
+        document.getElementById('loading-overlay').textContent = "情報の読み込みに失敗しました。";
+      }
+    }
+
+    document.getElementById('profile-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('submit-btn');
+      btn.disabled = true; btn.textContent = '保存中...';
+      const line = document.getElementById('input-line').value;
+      const station = document.getElementById('input-station').value;
+      document.getElementById('hidden-location').value = `${line}線 ${station}駅`;
+      const formData = new FormData(e.target);
+      try {
+        const res = await fetch('/api/update-profile.php', { method: 'POST', body: formData });
+        const result = await res.json();
+        if (result.success) { alert('更新しました'); window.location.href = '/dashboard'; }
+        else { alert('エラー: ' + result.message); btn.disabled = false; btn.textContent = '設定を保存する'; }
+      } catch (err) { alert('通信エラー'); btn.disabled = false; btn.textContent = '設定を保存する'; }
+    });
+    init();
+  </script>
+</Layout>

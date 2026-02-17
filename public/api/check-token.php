@@ -1,5 +1,5 @@
 <?php
-require_once 'db-config.php'; // 共通DB設定の読み込み
+require_once __DIR__ . '/../db-config.php'; // 共通DB設定の読み込み
 
 // エラー表示設定
 ini_set('display_errors', 1);

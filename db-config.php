@@ -12,6 +12,17 @@ define('SMTP_PASS', 'Flowersf0rAlgernon');
 define('SMTP_FROM', 'info@sbt-inc.co.jp');
 define('SMTP_FROM_NAME', 'no-reply(SBTフリーランス)');
 
+// IMAP)設定情報
+define('IMAP_HOST', 'sbt-inc.sakura.ne.jp');
+define('IMAP_USER', 'sales@sbt-inc.co.jp');
+define('IMAP_PASS', 'Flowersf0rAlgernon');
+
+// Gemini API
+define('GEMINI_API_KEY', 'AIzaSyAnkIPiGITsQmenVlOMqIN9FRT6tnfYaBU');
+
+// Mistral API
+define('MISTRAL_API_KEY', 'epfhcKKzVRhqN9WliWMpSpPNFQdWdMmY');
+
 /**
  * PDO接続を返す共通関数
  */

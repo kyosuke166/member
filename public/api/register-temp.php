@@ -1,5 +1,5 @@
 <?php
-require_once 'db-config.php'; 
+require_once __DIR__ . '/../db-config.php'; 
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;

@@ -14,7 +14,8 @@ try {
         SELECT 
             email, last_name, first_name, last_name_kana, first_name_kana, gender,
             birthday, tel, nationality, location, role, job_category, experience, 
-            reward, availability, work_status, portfolio, skills, bio 
+            reward, availability, work_status, portfolio, skills, bio,
+            skillsheet
         FROM members WHERE id = :id LIMIT 1
     ");
     $stmt->execute([':id' => $_SESSION['user_id']]);

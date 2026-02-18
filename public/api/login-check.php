@@ -26,6 +26,11 @@ try {
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['user_email'] = $user['email'];
 
+        // --- 追加：最終ログイン日時を更新 ---
+        $updateStmt = $pdo->prepare("UPDATE members SET last_login = NOW() WHERE id = :id");
+        $updateStmt->execute([':id' => $user['id']]);
+        // ----------------------------------
+
         // ダッシュボードへリダイレクト
         header('Location: /dashboard');
         exit;

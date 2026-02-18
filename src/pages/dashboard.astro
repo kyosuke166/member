@@ -47,38 +47,20 @@ import Layout from '../layouts/Layout.astro';
 
   <script is:inline>
     let allProjects = [];
-    let userSkills = []; // ユーザーのスキルを保持
+    let userSkills = [];
 
-    // --- マッチング計算ロジック ---
     function calculateMatchRate(projectSkills) {
-      if (!userSkills.length || !projectSkills || !projectSkills.length) {
-        return 0; // そもそも比較できない場合は0%（または非表示）
-      }
-
-      // 一致するスキルを抽出
+      if (!userSkills.length || !projectSkills || !projectSkills.length) return 0;
       const matches = projectSkills.filter(ps => 
         userSkills.some(us => us.toLowerCase() === ps.trim().toLowerCase())
       );
-
-      // --- ここが「うさんくささ」解消のキモ ---
-      if (matches.length === 0) {
-        // 一致ゼロなら、変に散らさず「一律」で低く出す
-        return 15; 
-      }
-
-      // 1つでも一致したら、基礎点(60%) + 一致数ボーナス
-      // これにより「マッチしてる感」が際立ちます
+      if (matches.length === 0) return 15;
       let rate = 60 + (matches.length * 15);
-      
-      // 隠し味としての微量な乱数（1〜3%）だけ足して、計算のリアルさを出す
       rate += Math.floor(Math.random() * 4);
-      
       if (rate > 98) rate = 98;
-      
       return rate;
     }
 
-    // --- 次回更新日時を計算・表示する関数 ---
     function updateNextScheduleDisplay() {
       const display = document.getElementById('next-update-display');
       if (!display) return;
@@ -112,18 +94,15 @@ import Layout from '../layouts/Layout.astro';
       container.innerHTML = projects.map(p => {
         const displayPrice = p.reward ? `~${p.reward}万` : '応相談';
         const skillArray = Array.isArray(p.skills) ? p.skills : [];
-        
-        // --- 改良版：個別マッチ率の計算 ---
         const matchRate = calculateMatchRate(skillArray);
         matchSum += matchRate;
         
-        // マッチ度に応じたバッジ色（誠実な色分け）
-        let matchColor = 'bg-slate-400'; // 一致なし
-        if (matchRate >= 80) matchColor = 'bg-blue-600'; // 高マッチ
-        else if (matchRate >= 50) matchColor = 'bg-emerald-500'; // 中マッチ
+        let matchColor = 'bg-slate-400';
+        if (matchRate >= 80) matchColor = 'bg-blue-600';
+        else if (matchRate >= 50) matchColor = 'bg-emerald-500';
 
         return `
-        <div class="bg-white border border-slate-200 rounded-2xl p-6 md:p-8 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
+        <div class="bg-white border border-slate-200 rounded-2xl p-6 md:p-8 shadow-sm hover:shadow-2xl hover:-translate-y-1.5 hover:border-amber-200 transition-all duration-300 group cursor-default">
           <div class="mb-4 flex items-center justify-between">
             <div class="flex items-center">
               <span class="inline-block ${matchColor} text-white text-[11px] font-bold px-3 py-1.5 rounded-md uppercase tracking-wider">
@@ -135,17 +114,17 @@ import Layout from '../layouts/Layout.astro';
             </div>
           </div>
 
-          <h3 class="text-2xl font-extrabold text-slate-900 mb-6 leading-snug group-hover:text-blue-600 transition-colors">
+          <h3 class="text-2xl font-extrabold text-slate-900 mb-6 leading-snug group-hover:text-[#c08e00] transition-colors duration-300">
             ${p.title}
           </h3>
 
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-0 border border-slate-100 rounded-xl overflow-hidden mb-6 shadow-sm">
-            <div class="bg-slate-50/50 p-5 border-b md:border-b-0 md:border-r border-slate-100">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-0 border border-slate-100 rounded-xl overflow-hidden mb-6 shadow-sm group-hover:border-amber-100 transition-colors">
+            <div class="bg-slate-50/50 p-5 border-b md:border-b-0 md:border-r border-slate-100 group-hover:bg-amber-50/30 transition-colors">
               <p class="text-[10px] font-bold text-slate-400 mb-1 tracking-widest uppercase">作業期間</p>
               <p class="text-[15px] font-bold text-slate-700">${p.term || '相談'}</p>
             </div>
             
-            <div class="bg-slate-50/50 p-5 border-b md:border-b-0 md:border-r border-slate-100">
+            <div class="bg-slate-50/50 p-5 border-b md:border-b-0 md:border-r border-slate-100 group-hover:bg-amber-50/30 transition-colors">
               <p class="text-[10px] font-bold text-slate-400 mb-1 tracking-widest uppercase">主要拠点</p>
               <div class="flex items-center gap-2 flex-wrap">
                 <p class="text-[15px] font-bold text-slate-700 leading-snug">${p.location || '都内'}</p>
@@ -157,36 +136,29 @@ import Layout from '../layouts/Layout.astro';
               </div>
             </div>
 
-            <div class="bg-slate-50/50 p-5">
+            <div class="bg-slate-50/50 p-5 group-hover:bg-amber-50/30 transition-colors">
               <p class="text-[10px] font-bold text-slate-400 mb-1 tracking-widest uppercase">単価(目安)</p>
               <p class="text-xl font-black text-blue-600 tracking-tight">${displayPrice}</p>
             </div>
           </div>
 
           <div class="mb-8">
-            <p class="text-[15px] text-slate-600 leading-relaxed line-clamp-3">
+            <p class="text-[15px] text-slate-600 leading-relaxed">
               ${p.summary_text}
             </p>
           </div>
 
-          <div class="flex flex-wrap gap-2 mb-6">
+          <div class="flex flex-wrap gap-2">
             ${skillArray.slice(0, 10).map(skill => `
-              <span class="bg-slate-50 text-slate-500 border border-slate-200 px-3 py-1.5 rounded-lg text-[11px] font-bold">
+              <span class="bg-slate-50 text-slate-500 border border-slate-200 px-3 py-1.5 rounded-lg text-[11px] font-bold group-hover:bg-white group-hover:border-amber-200 transition-colors">
                 ${skill}
               </span>
             `).join('')}
-          </div>
-
-          <div class="flex justify-end border-t border-slate-50 pt-6">
-            <a href="/member/project-detail.php?id=${p.id}" class="bg-slate-900 text-white px-8 py-3 rounded-xl text-sm font-bold hover:bg-blue-600 transition-all shadow-lg shadow-slate-200">
-              案件の詳細を見る
-            </a>
           </div>
         </div>
         `;
       }).join('');
 
-      // 全体平均マッチ度を反映
       if (totalMatchDisplay && projects.length > 0) {
         totalMatchDisplay.textContent = Math.round(matchSum / projects.length);
       }
@@ -210,7 +182,7 @@ import Layout from '../layouts/Layout.astro';
         const data = await res.json();
         if (!data.isLoggedIn) { window.location.href = '/?error=unauthorized'; return; }
         
-        userSkills = data.userSkills || []; // ユーザースキルを保持
+        userSkills = data.userSkills || [];
 
         const headerName = document.getElementById('header-user-name');
         if (headerName) headerName.textContent = data.userName + ' 様';

@@ -28,6 +28,18 @@ import Layout from '../layouts/Layout.astro';
     #loading-overlay { text-align: center; padding: 100px; font-size: 1.2rem; color: var(--primary); }
     .back-link { display: block; text-align: center; margin-top: 20px; color: #64748b; text-decoration: none; font-size: 0.9rem; font-weight: 600; }
     .note { font-size: 0.75rem; color: #64748b; margin-top: 4px; line-height: 1.4; }
+
+    /* カスタムアップロードUIのスタイル */
+    .file-upload-wrapper { position: relative; width: 100%; }
+    .hidden-input { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+    .custom-file-label {
+      display: flex; align-items: center; gap: 15px; padding: 18px; background: #f8fafc;
+      border: 2px dashed #cbd5e1; border-radius: 12px; cursor: pointer; transition: all 0.2s ease;
+    }
+    .custom-file-label:hover { background: #f1f5f9; border-color: var(--primary); }
+    .upload-icon { font-size: 1.5rem; }
+    .upload-text-content { display: flex; flex-direction: column; }
+    #upload-status-text { font-size: 0.9rem; font-weight: 800; line-height: 1.4; }
   </style>
 
   <div id="loading-overlay">プロフィール情報を読み込み中...</div>
@@ -111,7 +123,7 @@ import Layout from '../layouts/Layout.astro';
               <input type="number" id="exp_y" readonly /><span class="unit">年</span>
               <input type="number" id="exp_m" readonly /><span class="unit">ヶ月</span>
             </div>
-            <p class="note">※本登録時の開始日から自動計算されています。</p>
+            <p class="note">※本登録時の経験年数から自動計算されています。</p>
           </div>
           <div class="field"><label><span class="optional-badge">任意</span>GitHub URL</label>
             <input type="url" name="github_url" id="github_url" placeholder="https://github.com/..." />
@@ -119,11 +131,22 @@ import Layout from '../layouts/Layout.astro';
           <div class="field full-width"><label><span class="optional-badge">任意</span>主要スキル</label>
             <input type="text" name="skills" id="skills" placeholder="React, PHP, AWSなど" />
           </div>
-          <div class="field full-width"><label><span class="optional-badge">任意</span>スキルシートの更新</label>
-            <input type="file" name="skill_sheet" accept=".pdf,.doc,.docx" />
-            <p class="note">※現在のシートを差し替える場合に選択してください。</p>
-            <p class="note text-red-500 font-bold">※スキルシートのご提出がない場合、企業様への具体的なご提案ができません。</p>
+
+          <div class="field full-width">
+            <label><span class="optional-badge">任意</span>スキルシートの更新</label>
+            <div class="file-upload-wrapper">
+              <input type="file" name="skill_sheet" id="real-file-input" class="hidden-input" />
+              <label for="real-file-input" class="custom-file-label">
+                <div class="upload-icon" id="upload-icon">📁</div>
+                <div class="upload-text-content">
+                  <span id="upload-status-text">読み込み中...</span>
+                  <p class="text-[11px] text-slate-400 mt-1">クリックしてファイルを選択（すべての形式に対応）</p>
+                </div>
+              </label>
+            </div>
+            <p class="note text-red-500 font-bold mt-2">※スキルシートのご提出がない場合、企業様への具体的なご提案ができません。</p>
           </div>
+
           <div class="field full-width"><label>自己紹介・略歴</label>
             <textarea name="bio" id="bio" rows="5"></textarea>
           </div>
@@ -136,6 +159,23 @@ import Layout from '../layouts/Layout.astro';
   </div>
 
   <script is:inline>
+    // アップロードUIのテキスト更新
+    function updateUploadUI(hasFile, fileName = null) {
+      const statusText = document.getElementById('upload-status-text');
+      const icon = document.getElementById('upload-icon');
+      
+      if (fileName) {
+        statusText.innerHTML = `<span class="text-blue-600">📄 選択中: ${fileName}</span>`;
+        icon.textContent = '📝';
+      } else if (hasFile) {
+        statusText.innerHTML = `<span class="text-emerald-600">✅ スキルシート提出済み</span><br><span class="text-slate-500 text-xs">最新のスキルシートをアップする</span>`;
+        icon.textContent = '📁';
+      } else {
+        statusText.innerHTML = `<span class="text-slate-400">❌ スキルシート未提出</span><br><span class="text-slate-500 text-xs">スキルシートをアップする</span>`;
+        icon.textContent = '📤';
+      }
+    }
+
     function setupAvailability(dbVal) {
       const select = document.getElementById('availability-select');
       const now = new Date();
@@ -167,23 +207,21 @@ import Layout from '../layouts/Layout.astro';
         const res = await fetch('/api/get-profile.php');
         const data = await res.json();
         if (data.error) throw new Error(data.error);
+        
+        // ヘッダーへの氏名反映
         const headerName = document.getElementById('header-user-name');
         if (headerName) headerName.textContent = (data.last_name || '') + ' ' + (data.first_name || '') + ' 様';
         
-        // --- フォーム流し込み ---
+        // 基本項目の流し込み
         document.getElementById('last_name').value = data.last_name || '';
         document.getElementById('first_name').value = data.first_name || '';
         document.getElementById('last_name_kana').value = data.last_name_kana || '';
         document.getElementById('first_name_kana').value = data.first_name_kana || '';
-        
-        // 性別コード(1,2)を日本語名称に変換して表示
         const genderMap = { "1": "男性", "2": "女性" };
         document.getElementById('gender_display').value = genderMap[data.gender] || '未設定';
-        
         document.getElementById('birthday').value = data.birthday || '';
         document.getElementById('tel').value = data.tel || '';
         document.getElementById('nationality').value = data.nationality || '';
-        
         document.getElementById('role').value = data.role || 'フリーランス';
         document.getElementById('job_category').value = data.job_category || '';
         document.getElementById('desired_rate').value = data.desired_rate || '';
@@ -200,6 +238,11 @@ import Layout from '../layouts/Layout.astro';
         document.getElementById('skills').value = data.skills || '';
         document.getElementById('bio').value = data.bio || '';
         
+        // --- ここが重要！スキルシートの状態反映 ---
+        // data['skillsheet']（sが1つ）で確実に参照します
+        const hasSheet = !!(data.skillsheet && data.skillsheet.trim());
+        updateUploadUI(hasSheet);
+
         if (data.experience && data.experience !== '0000-00-00') {
           const start = new Date(data.experience);
           const now = new Date();
@@ -211,13 +254,20 @@ import Layout from '../layouts/Layout.astro';
         }
         setupAvailability(data.availability);
         
+        // 全ての処理が終わってから表示を切り替え
         document.getElementById('loading-overlay').style.display = 'none';
         document.getElementById('main-content').style.display = 'block';
       } catch (e) {
-        console.error(e);
-        document.getElementById('loading-overlay').textContent = "情報の読み込みに失敗しました。";
+        console.error("Init Error:", e);
+        document.getElementById('loading-overlay').textContent = "情報の読み込みに失敗しました。詳細: " + e.message;
       }
     }
+
+    // ファイル選択時のイベント
+    document.getElementById('real-file-input').addEventListener('change', function(e) {
+      const fileName = e.target.files[0]?.name;
+      updateUploadUI(false, fileName);
+    });
 
     document.getElementById('profile-form').addEventListener('submit', async (e) => {
       e.preventDefault();

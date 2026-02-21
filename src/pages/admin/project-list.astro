@@ -1,0 +1,311 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="案件データ管理 | SBTフリーランス" isLoggedIn={true}>
+  <div class="min-h-screen bg-[#0f172a] text-slate-200 flex flex-col">
+    <div class="p-6 border-b border-slate-800 bg-[#0f172a]/80 backdrop-blur-md sticky top-0 z-40">
+      <div class="max-w-7xl mx-auto flex justify-between items-center">
+        <div>
+          <h1 class="text-2xl font-black text-white tracking-tighter italic">DATA MANAGER</h1>
+          <p class="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-1">Project Analysis Control</p>
+        </div>
+        <div class="flex gap-4 items-center">
+          <div id="pagination-info" class="text-xs text-slate-500 font-mono"></div>
+          <a href="/admin" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-lg border border-slate-700 transition-all">コンソールへ戻る</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex-1 p-6">
+      <div class="max-w-7xl mx-auto">
+        <div class="bg-[#1e293b] rounded-2xl border border-slate-700 shadow-2xl overflow-hidden mb-8">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-black/20 text-[10px] uppercase tracking-widest text-slate-500 border-b border-slate-700">
+                  <th class="px-6 py-4 font-bold">ID</th>
+                  <th class="px-6 py-4 font-bold whitespace-nowrap">メール受信日時</th>
+                  <th class="px-6 py-4 font-bold">案件タイトル / 技術スタック</th>
+                  <th class="px-6 py-4 font-bold whitespace-nowrap">単価</th>
+                  <th class="px-6 py-4 font-bold whitespace-nowrap">場所 / リモート</th>
+                  <th class="px-6 py-4 font-bold text-right">操作</th>
+                </tr>
+              </thead>
+              <tbody id="project-table-body">
+                <tr><td colspan="6" class="px-6 py-20 text-center text-slate-500 italic">読み込み中...</td></tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <div class="p-4 border-t border-slate-700 bg-black/10 flex justify-center gap-2" id="pagination-controls"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="edit-panel" class="fixed right-0 top-0 h-full w-full md:w-[850px] bg-[#1e293b] shadow-2xl border-l border-slate-700 translate-x-full transition-transform duration-300 z-50 flex flex-col invisible">
+      <div class="p-4 border-b border-slate-700 flex justify-between items-center bg-black/40">
+        <div class="flex items-center gap-3">
+          <span class="bg-emerald-500/20 text-emerald-400 text-[10px] font-bold px-2 py-1 rounded border border-emerald-500/30 uppercase">Editor</span>
+          <h2 class="font-bold text-white text-sm" id="edit-panel-id">案件詳細・比較編集</h2>
+        </div>
+        <button id="btn-close-panel" class="text-slate-500 hover:text-white transition-colors text-xl p-2">✕</button>
+      </div>
+      
+      <div class="flex flex-1 overflow-hidden">
+        <div class="w-1/2 flex flex-col border-r border-slate-700">
+          <div class="bg-black/20 px-4 py-2 text-[10px] font-bold text-slate-500 uppercase border-b border-slate-800">Original Email Body</div>
+          <div class="flex-1 p-4 overflow-y-auto bg-black/20 text-[11px] text-slate-400 font-mono leading-relaxed whitespace-pre-wrap select-text" id="original-body">読み込み中...</div>
+        </div>
+        
+        <div class="w-1/2 flex flex-col bg-[#1e293b]">
+          <div class="bg-black/10 px-4 py-2 text-[10px] font-bold text-slate-500 uppercase border-b border-slate-800">Extracted Data (AI)</div>
+          <div class="flex-1 p-6 overflow-y-auto space-y-5">
+            <input type="hidden" id="edit-mail-id">
+            
+            <div class="bg-black/20 p-3 rounded-lg border border-slate-700/50">
+              <label class="text-[9px] font-bold text-slate-500 uppercase block mb-1">メール受信日時</label>
+              <div id="display-created" class="text-xs font-mono text-emerald-400/80 italic">----/--/-- --:--:--</div>
+            </div>
+
+            <div>
+              <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">案件タイトル</label>
+              <textarea id="edit-title" rows="2" class="w-full bg-black/30 border border-slate-600 rounded-lg p-3 text-xs text-white focus:outline-none focus:border-emerald-500"></textarea>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">単価 (万円)</label>
+                <input type="number" id="edit-reward" class="w-full bg-black/30 border border-slate-600 rounded-lg p-3 text-xs text-white focus:outline-none focus:border-emerald-500" placeholder="空欄でスキル見合い">
+              </div>
+              <div>
+                <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">最寄駅</label>
+                <input type="text" id="edit-location" class="w-full bg-black/30 border border-slate-600 rounded-lg p-3 text-xs text-white focus:outline-none focus:border-emerald-500">
+              </div>
+            </div>
+            <div>
+              <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">リモート体制</label>
+              <select id="edit-remote" class="w-full bg-black/30 border border-slate-600 rounded-lg p-3 text-xs text-white focus:outline-none focus:border-emerald-500">
+                <option value="フルリモート">フルリモート</option>
+                <option value="一部リモート">一部リモート</option>
+                <option value="出社">出社</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">技術スタック (カンマ区切り)</label>
+              <input type="text" id="edit-skills" class="w-full bg-black/30 border border-slate-600 rounded-lg p-3 text-xs text-white font-mono focus:outline-none focus:border-emerald-500">
+            </div>
+            <div>
+              <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">案件詳細要約</label>
+              <textarea id="edit-summary" rows="5" class="w-full bg-black/30 border border-slate-600 rounded-lg p-3 text-[11px] text-slate-300 leading-relaxed focus:outline-none focus:border-emerald-500"></textarea>
+            </div>
+          </div>
+          
+          <div class="p-6 border-t border-slate-700 bg-black/20">
+            <button id="btn-save" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-4 rounded-xl font-black text-sm transition-all active:scale-95 shadow-lg shadow-emerald-900/20 uppercase tracking-widest">Update & Sync JSON</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div id="overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden transition-opacity duration-300 opacity-0"></div>
+  </div>
+
+  <script is:inline>
+    let currentPage = 1;
+    const limit = 50;
+
+    function formatDateTime(dateStr, showFull = false) {
+      if (!dateStr) return '---';
+      const d = new Date(dateStr);
+      const m = (d.getMonth() + 1).toString();
+      const day = d.getDate().toString();
+      const h = d.getHours().toString().padStart(2, '0');
+      const min = d.getMinutes().toString().padStart(2, '0');
+      const s = d.getSeconds().toString().padStart(2, '0');
+      
+      if (showFull) {
+        return `${d.getFullYear()}/${m.padStart(2, '0')}/${day.padStart(2, '0')} ${h}:${min}:${s}`;
+      }
+      return `${m}/${day} ${h}:${min}:${s}`;
+    }
+
+    async function fetchProjects(page = 1) {
+      currentPage = page;
+      const tbody = document.getElementById('project-table-body');
+      tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-20 text-center text-slate-500 italic">DBより最新データを取得中...</td></tr>';
+
+      try {
+        const res = await fetch('/api/data-manager.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'list', page: page })
+        });
+        
+        if (!res.ok) throw new Error('API Response Error');
+        const result = await res.json();
+        
+        if (result.success && result.data) {
+          if (result.data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-20 text-center text-slate-500 italic">解析済みの案件はありません。</td></tr>';
+          } else {
+            renderTable(result.data);
+            renderPagination(result.total);
+            document.getElementById('pagination-info').textContent = `TOTAL: ${result.total} 件 (${page} / ${Math.ceil(result.total / limit)} PAGE)`;
+          }
+        } else {
+          tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-20 text-center text-red-400">エラー: ${result.message || 'データ取得に失敗しました'}</td></tr>`;
+        }
+      } catch (e) { 
+        console.error("Fetch error:", e);
+        tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-20 text-center text-red-400">通信エラーが発生しました。</td></tr>';
+      }
+    }
+
+    function renderTable(projects) {
+      const tbody = document.getElementById('project-table-body');
+      tbody.innerHTML = projects.map(p => {
+        const rewardDisplay = (p.reward !== null && p.reward !== undefined && p.reward !== '') 
+          ? `${p.reward}<span class="text-[10px] ml-0.5">万</span>` 
+          : '<span class="text-[10px] text-slate-500 font-normal whitespace-nowrap">スキル見合い</span>';
+
+        return `
+        <tr class="border-b border-slate-800/50 hover:bg-white/5 transition-colors group cursor-pointer" onclick="openEditPanel(${JSON.stringify(p).replace(/"/g, '&quot;')})">
+          <td class="px-6 py-4 text-xs font-mono text-slate-500">${p.mail_id}</td>
+          <td class="px-6 py-4 text-xs font-mono text-slate-400 whitespace-nowrap">${formatDateTime(p.created)}</td>
+          <td class="px-6 py-4">
+            <div class="text-sm font-bold text-slate-200 mb-1 group-hover:text-emerald-400 transition-colors">${p.title}</div>
+            <div class="flex flex-wrap gap-1">
+              ${p.skills ? p.skills.split(',').map(s => `<span class="text-[9px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded border border-slate-700">${s.trim()}</span>`).join('') : ''}
+            </div>
+          </td>
+          <td class="px-6 py-4 text-sm font-bold text-amber-400 whitespace-nowrap">${rewardDisplay}</td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="text-xs text-slate-300">${p.location}</div>
+            <div class="text-[10px] text-slate-500 uppercase font-bold tracking-tighter">${p.remote}</div>
+          </td>
+          <td class="px-6 py-4 text-right" onclick="event.stopPropagation()">
+            <div class="flex justify-end gap-2">
+                <button onclick="handleAction('reset', ${p.mail_id})" class="text-[10px] bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-black px-4 py-1.5 rounded border border-emerald-500/50 font-bold transition-all active:scale-95 whitespace-nowrap">再解析</button>
+                <button onclick="handleAction('delete', ${p.mail_id})" class="text-[10px] bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white px-4 py-1.5 rounded border border-red-500/50 font-bold transition-all active:scale-95 whitespace-nowrap">削除</button>
+            </div>
+          </td>
+        </tr>
+      `}).join('');
+    }
+
+    function renderPagination(total) {
+      const totalPages = Math.ceil(total / limit);
+      const controls = document.getElementById('pagination-controls');
+      let html = '';
+      for (let i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+          html += `<button onclick="fetchProjects(${i})" class="w-8 h-8 rounded text-xs font-bold transition-all ${i === currentPage ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}">${i}</button>`;
+        } else if (i === currentPage - 3 || i === currentPage + 3) {
+          html += `<span class="text-slate-600">...</span>`;
+        }
+      }
+      controls.innerHTML = html;
+    }
+
+    async function openEditPanel(project) {
+      const panel = document.getElementById('edit-panel');
+      const overlay = document.getElementById('overlay');
+      const bodyDiv = document.getElementById('original-body');
+      
+      document.getElementById('edit-panel-id').textContent = `ID: ${project.mail_id} - 比較編集`;
+      document.getElementById('edit-mail-id').value = project.mail_id;
+      document.getElementById('edit-title').value = project.title;
+      document.getElementById('edit-reward').value = project.reward;
+      document.getElementById('edit-location').value = project.location;
+      document.getElementById('edit-remote').value = project.remote;
+      document.getElementById('edit-skills').value = project.skills;
+      document.getElementById('edit-summary').value = project.summary_text;
+      document.getElementById('display-created').textContent = formatDateTime(project.created, true);
+      
+      bodyDiv.textContent = '読み込み中...';
+      panel.classList.remove('invisible');
+      overlay.classList.remove('hidden');
+      setTimeout(() => {
+        panel.classList.remove('translate-x-full');
+        overlay.classList.add('opacity-100');
+      }, 10);
+
+      try {
+        const res = await fetch('/api/data-manager.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'get_original', mail_id: project.mail_id })
+        });
+        const result = await res.json();
+        bodyDiv.textContent = result.body;
+      } catch (e) { 
+        bodyDiv.textContent = '取得失敗: ' + e.message; 
+      }
+    }
+
+    function closePanel() {
+      const panel = document.getElementById('edit-panel');
+      const overlay = document.getElementById('overlay');
+      panel.classList.add('translate-x-full');
+      overlay.classList.remove('opacity-100');
+      setTimeout(() => {
+        panel.classList.add('invisible');
+        overlay.classList.add('hidden');
+      }, 300);
+    }
+
+    async function handleAction(action, mailId) {
+      if (!confirm(`実行してよろしいですか？`)) return;
+      const res = await fetch('/api/data-manager.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, mail_id: mailId })
+      });
+      const result = await res.json();
+      if (result.success) {
+        fetchProjects(currentPage);
+      }
+    }
+
+    document.getElementById('btn-save').onclick = async () => {
+      const btn = document.getElementById('btn-save');
+      btn.disabled = true;
+      btn.textContent = 'SAVING...';
+      const data = {
+        action: 'update',
+        mail_id: document.getElementById('edit-mail-id').value,
+        title: document.getElementById('edit-title').value,
+        reward: document.getElementById('edit-reward').value === '' ? null : document.getElementById('edit-reward').value,
+        location: document.getElementById('edit-location').value,
+        remote: document.getElementById('edit-remote').value,
+        skills: document.getElementById('edit-skills').value,
+        summary_text: document.getElementById('edit-summary').value
+      };
+      const res = await fetch('/api/data-manager.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      const result = await res.json();
+      if (result.success) {
+        btn.textContent = 'SUCCESS!';
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.textContent = 'Update & Sync JSON';
+          closePanel();
+          fetchProjects(currentPage);
+        }, 800);
+      }
+    };
+
+    document.getElementById('btn-close-panel').onclick = closePanel;
+    document.getElementById('overlay').onclick = closePanel;
+    fetchProjects();
+  </script>
+</Layout>
+
+<style>
+  .overflow-y-auto::-webkit-scrollbar { width: 4px; }
+  .overflow-y-auto::-webkit-scrollbar-track { background: transparent; }
+  .overflow-y-auto::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+</style>

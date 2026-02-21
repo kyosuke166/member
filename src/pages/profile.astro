@@ -211,7 +211,14 @@ import Layout from '../layouts/Layout.astro';
         // ヘッダーへの氏名反映
         const headerName = document.getElementById('header-user-name');
         if (headerName) headerName.textContent = (data.last_name || '') + ' ' + (data.first_name || '') + ' 様';
-        
+
+        // ログイン日時を設定
+        const headerLastLogin = document.getElementById('header-last-login');
+        if (headerLastLogin && data.last_login) {
+          const dateStr = data.last_login.replace(/-/g, '/');
+          headerLastLogin.textContent = `[前回ログイン：${dateStr}]`;
+        }
+    
         // 基本項目の流し込み
         document.getElementById('last_name').value = data.last_name || '';
         document.getElementById('first_name').value = data.first_name || '';

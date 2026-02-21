@@ -184,8 +184,15 @@ import Layout from '../layouts/Layout.astro';
         
         userSkills = data.userSkills || [];
 
-        const headerName = document.getElementById('header-user-name');
-        if (headerName) headerName.textContent = data.userName + ' 様';
+        // 名前を設定
+        document.getElementById('header-user-name').textContent = data.userName + ' 様';
+
+        // ログイン日時を設定
+        if (data.lastLogin) {
+          // yyyy-mm-dd hh:mm:ss を yyyy/m/d h:mm:ss 形式に整えて表示
+          const dateStr = data.lastLogin.replace(/-/g, '/');
+          document.getElementById('header-last-login').textContent = `[前回ログイン：${dateStr}]`;
+        }
 
         const statusLabel = document.getElementById('user-status-label');
         if (statusLabel) {

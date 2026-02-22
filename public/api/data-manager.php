@@ -20,17 +20,66 @@ try {
         $limit = 50;
         $offset = ($page - 1) * $limit;
         
-        $stmt = $pdo->query("SELECT COUNT(*) FROM project_summaries");
-        $total = $stmt->fetchColumn();
+        $filters = isset($data['filters']) ? $data['filters'] : [];
+        $whereClauses = ["1=1"];
+        $params = [];
 
-        // categoryを取得するためにreceived_mailsとJOIN
+        // 1. キーワードAND検索
+        if (!empty($filters['keyword'])) {
+            $kw = str_replace('　', ' ', $filters['keyword']); 
+            $words = preg_split('/\s+/', trim($kw), -1, PREG_SPLIT_NO_EMPTY);
+
+            foreach ($words as $word) {
+                // 本文(rm.body)は参照せず、AIが抽出した情報(skills, title)と送信元、件名を対象にする
+                $whereClauses[] = "(
+                    rm.subject LIKE ? OR 
+                    rm.from_address LIKE ? OR 
+                    ps.title LIKE ? OR 
+                    ps.skills LIKE ? OR 
+                    rm.date LIKE ?
+                )";
+                $wordParam = "%{$word}%";
+                $params[] = $wordParam; // subject
+                $params[] = $wordParam; // from_address
+                $params[] = $wordParam; // title
+                $params[] = $wordParam; // skills
+                $params[] = $wordParam; // date
+            }
+        }
+
+        // 2. カテゴリ検索
+        if (isset($filters['category']) && $filters['category'] !== '') {
+            $whereClauses[] = "rm.category = ?";
+            $params[] = (int)$filters['category'];
+        }
+
+        // 3. 単価（以上）検索
+        if (!empty($filters['reward'])) {
+            $whereClauses[] = "ps.reward >= ?";
+            $params[] = (int)$filters['reward'];
+        }
+
+        $whereSql = implode(" AND ", $whereClauses);
+
+        // 総件数取得
+        $countStmt = $pdo->prepare("SELECT COUNT(ps.mail_id) FROM project_summaries ps JOIN received_mails rm ON ps.mail_id = rm.id WHERE $whereSql");
+        $countStmt->execute($params);
+        $total = $countStmt->fetchColumn();
+
+        // データ取得 (メール受信が新しい順)
         $sql = "SELECT ps.*, rm.category, rm.subject, rm.date AS mail_date 
-                FROM project_summaries ps
-                JOIN received_mails rm ON ps.mail_id = rm.id
-                ORDER BY rm.date DESC LIMIT ? OFFSET ?";
+            FROM project_summaries ps
+            JOIN received_mails rm ON ps.mail_id = rm.id
+            WHERE $whereSql
+            ORDER BY rm.date DESC LIMIT ? OFFSET ?";
+        
         $stmt = $pdo->prepare($sql);
-        $stmt->bindValue(1, $limit, PDO::PARAM_INT);
-        $stmt->bindValue(2, $offset, PDO::PARAM_INT);
+        // 各パラメータをバインド
+        foreach ($params as $i => $p) {
+            $stmt->bindValue($i + 1, $p);
+        }
+        $stmt->bindValue(count($params) + 1, $limit, PDO::PARAM_INT);
+        $stmt->bindValue(count($params) + 2, $offset, PDO::PARAM_INT);
         $stmt->execute();
         $list = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -56,7 +105,7 @@ try {
     }
 
     elseif ($action === 'reset') {
-        // ★修正ポイント: 物理削除せず、解析フラグのみ戻す。
+        // 物理削除せず、解析フラグのみ戻す。
         // これにより、再解析時に ON DUPLICATE KEY UPDATE が走り、同じ ID で更新される。
         $pdo->beginTransaction();
         try {

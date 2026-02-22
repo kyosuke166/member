@@ -28,6 +28,40 @@ import Layout from '../../layouts/Layout.astro';
 
     <div class="flex-1 p-6">
       <div class="max-w-7xl mx-auto">
+        
+        <div class="mb-6 flex flex-wrap gap-4 items-end bg-[#1e293b]/50 p-5 rounded-2xl border border-slate-700/50 backdrop-blur-sm">
+          <div class="flex-1 min-w-[280px]">
+            <label class="text-[10px] font-bold text-slate-500 uppercase mb-1.5 block tracking-widest">キーワード検索</label>
+            <input type="text" id="filter-keyword" placeholder="空白区切り" 
+              class="w-full bg-black/20 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all">
+          </div>
+
+          <div class="w-40">
+            <label class="text-[10px] font-bold text-slate-500 uppercase mb-1.5 block tracking-widest">種別</label>
+            <select id="filter-category" class="w-full bg-black/20 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all">
+              <option value="">ALL</option>
+              <option value="1">案件</option>
+              <option value="2">技術者</option>
+              <option value="0">未分類</option>
+            </select>
+          </div>
+
+          <div class="w-40">
+            <label class="text-[10px] font-bold text-slate-500 uppercase mb-1.5 block tracking-widest">単価</label>
+            <select id="filter-reward" class="w-full bg-black/20 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all">
+              <option value="">ALL</option>
+              <option value="50">50万円〜</option>
+              <option value="70">70万円〜</option>
+              <option value="90">90万円〜</option>
+              <option value="110">110万円〜</option>
+            </select>
+          </div>
+
+          <button id="btn-apply-filter" class="bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-2.5 rounded-xl font-bold text-sm transition-all shadow-lg shadow-emerald-900/20 active:scale-95 uppercase tracking-wider">
+            検索
+          </button>
+        </div>
+
         <div class="bg-[#1e293b] rounded-2xl border border-slate-700 shadow-2xl overflow-hidden mb-8">
           <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
@@ -173,21 +207,33 @@ import Layout from '../../layouts/Layout.astro';
 
     async function fetchProjects(page = 1) {
       currentPage = page;
+      
+      // フィルタ値を取得
+      const filters = {
+        keyword: document.getElementById('filter-keyword').value,
+        category: document.getElementById('filter-category').value,
+        reward: document.getElementById('filter-reward').value
+      };
+
       try {
         const res = await fetch('/api/data-manager.php', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'list', page: page })
+          body: JSON.stringify({ action: 'list', page: page, filters: filters })
         });
         const result = await res.json();
         if (result.success) {
           renderTable(result.data);
           renderPagination(result.total);
-          const totalPages = Math.ceil(result.total / limit);
+          const totalPages = Math.ceil(result.total / limit) || 1;
           document.getElementById('pagination-info').textContent = `TOTAL: ${result.total} 件 (${page} / ${totalPages} PAGE)`;
         }
       } catch (e) { console.error("Fetch projects failed", e); }
     }
+
+    // フィルタボタンとエンターキーのイベント
+    document.getElementById('btn-apply-filter').onclick = () => fetchProjects(1);
+    document.getElementById('filter-keyword').onkeydown = (e) => { if (e.key === 'Enter') fetchProjects(1); };
 
     function renderTable(projects) {
       const tbody = document.getElementById('project-table-body');
@@ -247,8 +293,8 @@ import Layout from '../../layouts/Layout.astro';
           <td class="px-6 py-4 whitespace-nowrap">${locationDisplay}</td>
           <td class="px-6 py-4 text-right" onclick="event.stopPropagation()">
             <div class="flex justify-end gap-2">
-                <button onclick="handleAction('reset', ${p.mail_id})" class="whitespace-nowrap text-[11px] bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-black px-4 py-1.5 rounded border border-emerald-500/50 font-bold transition-all">再解析</button>
-                <button onclick="handleAction('delete', ${p.mail_id})" class="whitespace-nowrap text-[11px] bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white px-4 py-1.5 rounded border border-red-500/50 font-bold transition-all">削除</button>
+                <button onclick="handleAction('reset', ${p.mail_id}, event)" class="whitespace-nowrap text-[11px] bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-black px-4 py-1.5 rounded border border-emerald-500/50 font-bold transition-all">再解析</button>
+                <button onclick="handleAction('delete', ${p.mail_id}, event)" class="whitespace-nowrap text-[11px] bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white px-4 py-1.5 rounded border border-red-500/50 font-bold transition-all">削除</button>
             </div>
           </td>
         </tr>
@@ -309,7 +355,7 @@ import Layout from '../../layouts/Layout.astro';
       setTimeout(() => { panel.classList.add('invisible'); overlay.classList.add('hidden'); }, 300);
     }
 
-    async function handleAction(action, mailId) {
+    async function handleAction(action, mailId, event) {
       if (action === 'reset') {
         if (!confirm(`この案件をAIで再解析しますか？\n(既にデータがある場合は上書きされます)`)) return;
         

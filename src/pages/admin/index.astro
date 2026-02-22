@@ -10,6 +10,10 @@ import Layout from '../../layouts/Layout.astro';
         <div class="flex flex-col md:flex-row md:items-center justify-between mb-10 pb-6 border-b border-slate-700/50 gap-4">
           <div>
             <h1 class="text-3xl font-black text-white tracking-tighter italic">ADMIN CONSOLE</h1>
+            <div class="flex items-center gap-3 mt-1">
+              <span id="header-user-name" class="text-blue-400 font-bold text-xs">---</span>
+              <span id="header-last-login" class="text-slate-500 text-[10px] font-mono">---</span>
+            </div>
             <p class="text-slate-500 text-[10px] font-bold uppercase tracking-[0.2em] mt-1">System Management Service</p>
           </div>
           <div class="flex gap-4">
@@ -18,49 +22,60 @@ import Layout from '../../layouts/Layout.astro';
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <div class="bg-[#1e293b] p-6 rounded-2xl border border-slate-700 shadow-xl flex flex-col">
+          <div class="bg-[#1e293b] p-6 rounded-2xl border border-slate-700 shadow-xl flex flex-col h-full">
             <div class="flex-grow">
-              <div class="bg-blue-500/10 text-blue-400 w-12 h-12 flex items-center justify-center rounded-xl mb-4 text-2xl">📥</div>
-              <h3 class="font-black text-lg mb-2 text-white">メール取込み</h3>
+              <div class="flex items-center gap-3 mb-4">
+                <div class="bg-blue-500/10 text-blue-400 w-10 h-10 flex items-center justify-center rounded-xl text-xl">📥</div>
+                <h3 class="font-black text-lg text-white">メール取込み</h3>
+              </div>
               <p class="text-slate-400 text-xs mb-4 leading-relaxed">salesメールから未解析のメールをDBに取込みます。</p>
               
-              <div class="space-y-3 mb-6">
+              <p class="text-slate-500 text-[10px] mb-4">
+                最新受信：<span id="last-fetch-time" class="font-mono text-blue-400">取得中...</span>
+              </p>
+
+              <div class="grid grid-cols-2 gap-3 mb-6">
                 <div>
-                  <label class="text-[10px] font-bold text-slate-500 uppercase">From (開始日時)</label>
-                  <input type="datetime-local" id="fetch-from" class="w-full bg-black/30 border border-slate-600 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500" />
+                  <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">From</label>
+                  <input type="datetime-local" id="fetch-from" class="w-full bg-black/30 border border-slate-600 rounded-lg px-2 py-2 text-[10px] text-white focus:outline-none focus:border-blue-500" />
                 </div>
                 <div>
-                  <label class="text-[10px] font-bold text-slate-500 uppercase">To (終了日時)</label>
-                  <input type="datetime-local" id="fetch-to" class="w-full bg-black/30 border border-slate-600 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500" />
+                  <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">To</label>
+                  <input type="datetime-local" id="fetch-to" class="w-full bg-black/30 border border-slate-600 rounded-lg px-2 py-2 text-[10px] text-white focus:outline-none focus:border-blue-500" />
                 </div>
               </div>
             </div>
 
-            <button id="btn-fetch" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-500 transition-all active:scale-95 shadow-lg shadow-blue-900/20">取込み開始</button>
+            <div class="space-y-3">
+              <button id="btn-fetch" class="w-full bg-blue-600/20 text-blue-400 py-3 rounded-xl font-bold hover:bg-blue-600/30 transition-all border border-blue-500/30 text-xs">指定期間メール取込み</button>
+              <button id="btn-fetch-today" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black hover:bg-blue-500 transition-all active:scale-95 shadow-lg shadow-blue-900/40 text-sm">本日分メール取込み</button>
+            </div>
           </div>
 
-          <div class="bg-[#1e293b] p-6 rounded-2xl border border-slate-700 shadow-xl flex flex-col border-emerald-500/20">
+          <div class="bg-[#1e293b] p-6 rounded-2xl border border-slate-700 shadow-xl flex flex-col border-emerald-500/20 h-full">
             <div class="flex-grow">
-              <div class="bg-emerald-500/10 text-emerald-400 w-12 h-12 flex items-center justify-center rounded-xl mb-4 text-2xl">🤖</div>
-              <h3 class="font-black text-lg mb-2 text-white">メール解析 by AI</h3>
+              <div class="flex items-center gap-3 mb-4">
+                <div class="bg-emerald-500/10 text-emerald-400 w-10 h-10 flex items-center justify-center rounded-xl text-xl">🤖</div>
+                <h3 class="font-black text-lg text-white">ＡＩメール解析</h3>
+              </div>
               <p class="text-slate-400 text-xs mb-4 leading-relaxed">AIによる解析を実行し、JSONを書き出します。</p>
               
-              <div class="space-y-3 mb-6">
+              <div class="space-y-4 mb-6">
                 <div>
-                  <label class="text-[10px] font-bold text-slate-500 uppercase">未処理件数</label>
-                  <div class="w-full bg-black/30 border border-slate-600 rounded-lg px-3 py-2 text-xs flex items-center justify-between min-h-[34px]">
-                    <span class="text-slate-400">現在のキュー</span>
-                    <span id="pending-count" class="bg-emerald-500/20 text-emerald-400 font-mono px-2 py-0.5 rounded-full border border-emerald-500/30 text-[10px]">-- 件</span>
+                  <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">未処理キュー</label>
+                  <div class="w-full bg-black/30 border border-slate-600 rounded-lg px-2 py-1.5 flex items-center justify-between gap-2">
+                    <span id="pending-count" class="bg-emerald-500/20 text-emerald-400 font-mono px-2 py-0.5 rounded border border-emerald-500/30 text-[10px]">-- 件</span>
+                    <button id="btn-skip-analyze" class="bg-amber-600/20 hover:bg-amber-600/40 text-amber-500 text-[10px] font-bold px-3 py-1 rounded border border-amber-600/40 transition-all">解析スキップ</button>
                   </div>
                 </div>
 
                 <div>
-                  <label class="text-[10px] font-bold text-slate-500 uppercase">解析件数</label>
+                  <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">解析実行件数</label>
                   <select id="analyze-limit" class="w-full bg-black/30 border border-slate-600 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 appearance-none">
                     <option value="1">1件 (テスト実行)</option>
-                    <option value="5">5件 (クイック解析)</option>
-                    <option value="10" selected>10件 (推奨)</option>
-                    <option value="30">30件 (一括処理)</option>
+                    <option value="10" selected>10件 (標準)</option>
+                    <option value="20">20件</option>
+                    <option value="30">30件</option>
                     <option value="50">50件 (最大)</option>
                   </select>
                 </div>
@@ -70,22 +85,24 @@ import Layout from '../../layouts/Layout.astro';
             <button id="btn-analyze" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold hover:bg-emerald-500 transition-all active:scale-95 shadow-lg shadow-emerald-900/20">解析開始</button>
           </div>
 
-          <div class="bg-[#1e293b] p-6 rounded-2xl border border-slate-700 shadow-xl flex flex-col border-slate-500/20">
+          <div class="bg-[#1e293b] p-6 rounded-2xl border border-slate-700 shadow-xl flex flex-col border-slate-500/20 h-full">
             <div class="flex-grow">
-              <div class="bg-slate-500/10 text-slate-400 w-12 h-12 flex items-center justify-center rounded-xl mb-4 text-2xl">🔧</div>
-              <h3 class="font-black text-lg mb-2 text-white">Data Manager</h3>
+              <div class="flex items-center gap-3 mb-4">
+                <div class="bg-slate-500/10 text-slate-400 w-10 h-10 flex items-center justify-center rounded-xl text-xl">🔧</div>
+                <h3 class="font-black text-lg text-white">Data Manager</h3>
+              </div>
               <p class="text-slate-400 text-xs mb-4 leading-relaxed">解析済みデータの最終確認と編集を行います。</p>
               
               <div class="space-y-3 mb-6">
                 <div>
-                  <label class="text-[10px] font-bold text-slate-500 uppercase">公開済み件数</label>
+                  <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">公開済み件数</label>
                   <div class="w-full bg-black/10 border border-slate-700/50 rounded-lg px-3 py-2 text-xs flex items-center justify-between min-h-[34px]">
                     <span class="text-slate-500 italic">メンバー公開案件</span>
                     <span id="active-count" class="text-emerald-400 font-mono text-[10px]">-- 件</span>
                   </div>
                 </div>
                 <div>
-                  <label class="text-[10px] font-bold text-slate-500 uppercase">最新の公開メール</label>
+                  <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">最新の公開メール</label>
                   <div class="w-full bg-black/10 border border-slate-700/50 rounded-lg px-3 py-2 text-xs flex items-center min-h-[34px]">
                     <span id="last-update" class="text-slate-400 font-mono text-[9px]">取得中...</span>
                   </div>
@@ -115,8 +132,10 @@ import Layout from '../../layouts/Layout.astro';
     const pendingBadge = document.getElementById('pending-count');
     const activeBadge = document.getElementById('active-count');
     const lastUpdateEl = document.getElementById('last-update');
+    const userNameEl = document.getElementById('header-user-name');
+    const lastLoginEl = document.getElementById('header-last-login');
+    const lastFetchTimeEl = document.getElementById('last-fetch-time');
 
-    // 初期値の設定（今日1日分）
     const now = new Date();
     const todayStr = now.toISOString().slice(0, 10);
     document.getElementById('fetch-from').value = `${todayStr}T00:00`;
@@ -125,134 +144,64 @@ import Layout from '../../layouts/Layout.astro';
     function addLog(msg, type = 'info') {
       const div = document.createElement('div');
       const time = new Date().toLocaleTimeString();
-      let color = 'text-slate-400';
-      if (type === 'error') color = 'text-red-400';
-      if (type === 'success') color = 'text-emerald-400';
-      div.className = `${color} border-b border-slate-800/50 pb-1`;
-      div.innerHTML = `<span class="text-slate-600">[${time}]</span> ${msg}`;
+      let colorClass = 'text-slate-400';
+      if (type === 'error') colorClass = 'text-red-400 font-bold';
+      if (type === 'success') colorClass = 'text-emerald-400 font-bold';
+      div.className = `${colorClass} border-b border-slate-800/50 pb-1`;
+      div.textContent = `[${time}] ${msg}`;
       logConsole.appendChild(div);
       logConsole.scrollTop = logConsole.scrollHeight;
     }
 
-    // JSONから統計情報を取得する関数
+    function createLogLine(line) {
+      if (!line.trim()) return null;
+      const div = document.createElement('div');
+      
+      // デフォルト色
+      let colorClass = 'text-slate-400';
+
+      // 判定（前方一致やスペースを考慮して trim() したものと比較するのも手）
+      if (line.includes('[案件]')) {
+        colorClass = 'text-pink-400';
+      } else if (line.includes('[技術者]')) {
+        colorClass = 'text-cyan-400';
+      } else if (line.includes('[未分類]')) {
+        colorClass = 'text-slate-500';
+      } else if (line.includes('[DONE]')) {
+        colorClass = 'text-emerald-400';
+      } else if (line.includes('[ERROR]')) {
+        colorClass = 'text-red-400';
+      }
+
+      // クラスを適用（font-boldなどは別で付けると安定します）
+      div.classList.add('leading-relaxed', 'border-b', 'border-slate-800/30', 'pb-0.5', 'mb-0.5');
+      
+      // colorClassを直接追加
+      const classes = colorClass.split(' ');
+      classes.forEach(c => div.classList.add(c));
+
+      if (line.includes('[DONE]') || line.includes('[ERROR]')) {
+        div.classList.add('font-bold');
+      }
+
+      div.textContent = line;
+      return div;
+    }
+
     async function updateJsonStats() {
       try {
         const res = await fetch('/projects.json?t=' + Date.now());
         const projects = await res.json();
-        
         if (Array.isArray(projects)) {
-          // 1. 公開件数
           activeBadge.textContent = `${projects.length} 件`;
-          
-          // 2. 最新の公開日時 (created フィールド = メール受信日 を使用)
           if (projects.length > 0) {
-            const latest = projects.reduce((a, b) => {
-                return new Date(a.created) > new Date(b.created) ? a : b;
-            });
+            const latest = projects.reduce((a, b) => new Date(a.created) > new Date(b.created) ? a : b);
             const d = new Date(latest.created);
-            // 秒数まで含めてフォーマット (yyyy/mm/dd hh:mm:ss)
             const pad = (n) => n.toString().padStart(2, '0');
             lastUpdateEl.textContent = `${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-          } else {
-            lastUpdateEl.textContent = 'データなし';
           }
         }
-      } catch (e) {
-        console.error("JSON Stats Update Failed", e);
-        activeBadge.textContent = "Error";
-      }
-    }
-
-    async function refreshAdminStatus() {
-      try {
-        const res = await fetch('/api/check-admin.php');
-        const data = await res.json();
-        if (data.isAdmin) {
-          pendingBadge.textContent = `${data.pendingCount} 件`;
-        }
-        await updateJsonStats();
-      } catch (e) { console.error("Status Refresh Failed"); }
-    }
-
-    async function runFetcher() {
-      const btn = document.getElementById('btn-fetch');
-      const from = document.getElementById('fetch-from').value;
-      const to = document.getElementById('fetch-to').value;
-      
-      btn.disabled = true;
-      btn.textContent = '同期中...';
-      addLog(`mail_fetcher.php を開始します (${from} ～ ${to})...`);
-
-      try {
-        const response = await fetch(`/api/mail_fetcher.php?from=${from}&to=${to}`);
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let partialChunk = "";
-
-        while (true) {
-          const { value, done } = await reader.read();
-          if (done) break;
-          const chunk = decoder.decode(value, { stream: true });
-          const lines = (partialChunk + chunk).split("\n");
-          partialChunk = lines.pop();
-
-          lines.forEach(line => {
-            if (!line.trim()) return;
-            const logDiv = document.createElement('div');
-            logDiv.className = 'leading-relaxed border-b border-slate-800/30 pb-0.5 mb-0.5 text-blue-300';
-            logDiv.textContent = line;
-            logConsole.appendChild(logDiv);
-          });
-          logConsole.scrollTop = logConsole.scrollHeight;
-        }
-        addLog('同期プロセスが完了しました。', 'success');
-        await refreshAdminStatus();
-      } catch (e) {
-        addLog(`通信失敗: ${e.message}`, 'error');
-      } finally {
-        btn.disabled = false;
-        btn.textContent = '取込み開始';
-      }
-    }
-
-    async function runAnalyzer() {
-      const btn = document.getElementById('btn-analyze');
-      const limit = document.getElementById('analyze-limit').value;
-      
-      btn.disabled = true;
-      btn.textContent = '解析中...';
-      addLog(`mail_analyzer.php を開始します (件数: ${limit})...`);
-
-      try {
-        const response = await fetch(`/api/mail_analyzer.php?limit=${limit}`);
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let partialChunk = "";
-
-        while (true) {
-          const { value, done } = await reader.read();
-          if (done) break;
-          const chunk = decoder.decode(value, { stream: true });
-          const lines = (partialChunk + chunk).split("\n");
-          partialChunk = lines.pop();
-
-          lines.forEach(line => {
-              if (!line.trim() || line.includes('<!DOCTYPE') || line.includes('<body>')) return;
-              const logDiv = document.createElement('div');
-              logDiv.className = 'leading-relaxed border-b border-slate-800/30 pb-0.5 mb-0.5 text-emerald-300';
-              logDiv.innerHTML = line; 
-              logConsole.appendChild(logDiv);
-          });
-          logConsole.scrollTop = logConsole.scrollHeight;
-        }
-        addLog('解析プロセスが完了しました。', 'success');
-        await refreshAdminStatus();
-      } catch (e) {
-        addLog(`通信失敗: ${e.message}`, 'error');
-      } finally {
-        btn.disabled = false;
-        btn.textContent = '解析開始';
-      }
+      } catch (e) { console.error(e); }
     }
 
     async function checkAdmin() {
@@ -264,11 +213,16 @@ import Layout from '../../layouts/Layout.astro';
           return;
         }
 
-        const userNameEl = document.getElementById('header-user-name');
-        const lastLoginEl = document.getElementById('header-last-login');
+        // --- ヘッダー情報の復元 ---
         if (userNameEl) userNameEl.textContent = data.userName;
-        const dateStr = data.lastLogin.replace(/-/g, '/');
-        if (lastLoginEl) lastLoginEl.textContent = `[前回ログイン：${dateStr}]`;
+        if (lastLoginEl && data.lastLogin) {
+          lastLoginEl.textContent = `[前回ログイン：${data.lastLogin.replace(/-/g, '/')}]`;
+        }
+
+        // 最新メール日時を反映
+        if (lastFetchTimeEl) {
+            lastFetchTimeEl.textContent = data.lastFetchDate.replace(/-/g, '/');
+        }
 
         const content = document.getElementById('admin-content');
         content.classList.remove('invisible');
@@ -282,8 +236,138 @@ import Layout from '../../layouts/Layout.astro';
       }
     }
 
+    async function runFetcher() {
+      const btn = document.getElementById('btn-fetch');
+      const from = document.getElementById('fetch-from').value;
+      const to = document.getElementById('fetch-to').value;
+      btn.disabled = true;
+      btn.textContent = '同期中...';
+      addLog(`同期を開始します...`);
+
+      try {
+        const response = await fetch(`/api/mail_fetcher.php?from=${from}&to=${to}`);
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let partialChunk = "";
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = (partialChunk + chunk).split("\n");
+          partialChunk = lines.pop();
+          lines.forEach(line => {
+            const logDiv = createLogLine(line);
+            if (logDiv) logConsole.appendChild(logDiv);
+          });
+          logConsole.scrollTop = logConsole.scrollHeight;
+        }
+        addLog('同期が完了しました。', 'success');
+        const res = await fetch('/api/check-admin.php');
+        const d = await res.json();
+        pendingBadge.textContent = `${d.pendingCount} 件`;
+      } catch (e) {
+        addLog(`エラー: ${e.message}`, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '取込み開始';
+      }
+    }
+
+    async function runAnalyzer() {
+      const btn = document.getElementById('btn-analyze');
+      const limit = document.getElementById('analyze-limit').value;
+      btn.disabled = true;
+      btn.textContent = '解析中...';
+      addLog(`解析を開始します...`);
+
+      try {
+        const response = await fetch(`/api/mail_analyzer.php?limit=${limit}`);
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let partialChunk = "";
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = (partialChunk + chunk).split("\n");
+          partialChunk = lines.pop();
+          lines.forEach(line => {
+            const logDiv = createLogLine(line);
+            if (logDiv) logConsole.appendChild(logDiv);
+          });
+          logConsole.scrollTop = logConsole.scrollHeight;
+        }
+        addLog('解析が完了しました。', 'success');
+        const res = await fetch('/api/check-admin.php');
+        const d = await res.json();
+        pendingBadge.textContent = `${d.pendingCount} 件`;
+        await updateJsonStats();
+      } catch (e) {
+        addLog(`エラー: ${e.message}`, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '解析開始';
+      }
+    }
+
+    async function runTodayFetcher() {
+      const now = new Date();
+      const todayStr = now.toISOString().slice(0, 10);
+      
+      // 入力フィールドを強制的に「今日」にセット
+      document.getElementById('fetch-from').value = `${todayStr}T00:00`;
+      document.getElementById('fetch-to').value = `${todayStr}T23:59`;
+      
+      addLog("本日分の取込みを予約しました。", "info");
+      
+      // 既存の取込み関数を実行
+      await runFetcher();
+    }
+
+    async function runSkipAnalyze() {
+      // バッジから現在の件数を取得
+      const countStr = pendingBadge.textContent;
+      
+      if (!confirm(`未処理のメール（${countStr}）を解析せずにスキップ登録しますか？\n※データマネージャーで後から個別解析が可能です。`)) {
+        return;
+      }
+
+      const btn = document.getElementById('btn-skip-analyze');
+      btn.disabled = true;
+      btn.textContent = '処理中...';
+      addLog(`解析スキップを開始しました（対象: ${countStr}）...`, 'info');
+
+      try {
+        const response = await fetch('/api/skip_analyzer.php');
+        const result = await response.json();
+
+        if (result.success) {
+          addLog(`完了: ${result.message}`, 'success');
+        } else {
+          addLog(`エラー: ${result.message}`, 'error');
+        }
+
+        // 完了後に件数表示をリフレッシュ
+        const res = await fetch('/api/check-admin.php');
+        const d = await res.json();
+        pendingBadge.textContent = `${d.pendingCount} 件`;
+        
+      } catch (e) {
+        addLog(`通信エラー: ${e.message}`, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '解析スキップ';
+      }
+    }
+
+    // イベントリスナー
+
     document.getElementById('btn-fetch').addEventListener('click', runFetcher);
     document.getElementById('btn-analyze').addEventListener('click', runAnalyzer);
+    document.getElementById('btn-fetch-today').addEventListener('click', runTodayFetcher);
+    document.getElementById('btn-skip-analyze').addEventListener('click', runSkipAnalyze);
     document.getElementById('btn-clear-log').addEventListener('click', () => {
       logConsole.innerHTML = '<div class="text-slate-600 italic text-xs">> Console cleared.</div>';
     });

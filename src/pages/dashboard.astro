@@ -93,7 +93,8 @@ import Layout from '../layouts/Layout.astro';
 
       container.innerHTML = projects.map(p => {
         const displayPrice = p.reward ? `~${p.reward}万` : '応相談';
-        const skillArray = Array.isArray(p.skills) ? p.skills : [];
+        const skillArray = Array.isArray(p.skills) ? p.skills : (p.skills ? p.skills.split(',').map(s => s.trim()) : []);
+        
         const matchRate = calculateMatchRate(skillArray);
         matchSum += matchRate;
         
@@ -150,7 +151,7 @@ import Layout from '../layouts/Layout.astro';
 
           <div class="flex flex-wrap gap-2">
             ${skillArray.slice(0, 10).map(skill => `
-              <span class="bg-slate-50 text-slate-500 border border-slate-200 px-3 py-1.5 rounded-lg text-[11px] font-bold group-hover:bg-white group-hover:border-amber-200 transition-colors">
+              <span class="bg-cyan-50 text-cyan-700 border border-cyan-200 px-3 py-1.5 rounded-lg text-[11px] font-bold group-hover:bg-cyan-100 group-hover:border-cyan-300 transition-colors duration-200">
                 ${skill}
               </span>
             `).join('')}
@@ -189,7 +190,6 @@ import Layout from '../layouts/Layout.astro';
 
         // ログイン日時を設定
         if (data.lastLogin) {
-          // yyyy-mm-dd hh:mm:ss を yyyy/m/d h:mm:ss 形式に整えて表示
           const dateStr = data.lastLogin.replace(/-/g, '/');
           document.getElementById('header-last-login').textContent = `[前回ログイン：${dateStr}]`;
         }

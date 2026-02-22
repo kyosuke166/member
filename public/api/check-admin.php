@@ -20,7 +20,12 @@ if (!$user || (int)$user['admin'] !== 1) {
     exit(json_encode(['isAdmin' => false]));
 }
 
-// 未解析（analyze_flg = 0）の件数を取得
+// 最新のメール受信日時を取得
+$stmtFetch = $pdo->query("SELECT MAX(date) as last_date FROM received_mails");
+$lastFetch = $stmtFetch->fetch();
+$lastDate = $lastFetch['last_date'] ?? '---';
+
+// --- 修正ポイント：案件・技術者問わず、analyze_flg = 0 の全件を取得 ---
 $stmt_count = $pdo->query("SELECT COUNT(*) FROM received_mails WHERE analyze_flg = 0");
 $pending_count = $stmt_count->fetchColumn();
 
@@ -28,5 +33,6 @@ echo json_encode([
     'isAdmin' => true,
     'userName' => $user['last_name'] . ' ' . $user['first_name'],
     'lastLogin' => $user['last_login'],
-    'pendingCount' => (int)$pending_count // ★ これを返す
+    'pendingCount' => (int)$pending_count,
+    'lastFetchDate' => $lastDate
 ]);

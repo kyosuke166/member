@@ -137,12 +137,12 @@ import Layout from '../../layouts/Layout.astro';
             </div>
             <div>
               <label class="text-[11px] font-bold text-slate-500 uppercase block mb-1">リモート体制</label>
-              <select id="edit-remote" class="w-full bg-black/30 border border-slate-600 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-emerald-500">
-                <option value="フルリモート">フルリモート</option>
-                <option value="一部リモート">一部リモート</option>
-                <option value="出社">出社</option>
-                <option value="要確認">要確認</option>
-              </select>
+              <input 
+                type="text" 
+                id="edit-remote" 
+                class="w-full bg-black/30 border border-slate-600 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-emerald-500" 
+                placeholder="例：フルリモート、週3出社など"
+              >
             </div>
             <div>
               <label class="text-[11px] font-bold text-slate-500 uppercase block mb-1">技術スタック (カンマ区切り)</label>
@@ -367,23 +367,32 @@ import Layout from '../../layouts/Layout.astro';
         btn.classList.add('opacity-70', 'cursor-not-allowed');
 
         try {
-          // re_analyze.php を呼び出す
           const res = await fetch(`/api/re_analyze.php?mail_id=${mailId}`);
-          const result = await res.json();
+          
+          // --- デバッグ修正：まずテキストとして受け取る ---
+          const text = await res.text();
+          let result;
+          try {
+              result = JSON.parse(text);
+          } catch (pE) {
+              // JSONじゃない（PHPのエラー文など）が返ってきた場合
+              console.error("サーバー応答:", text);
+              alert("サーバーエラー（生データ）:\n" + text);
+              btn.disabled = false;
+              btn.textContent = originalText;
+              return;
+          }
           
           if (result.success) {
-            // 成功したらテーブルをリロード
             fetchProjects(currentPage);
           } else {
-            console.error("解析ログ:", result.debug_log); // コンソールに詳細を出す
-            alert("解析失敗。詳細はコンソールを確認してください。\n\n【簡易ログ】\n" + (result.debug_log ? result.debug_log.slice(-200) : "ログなし"));
+            alert("解析失敗: " + (result.message || "不明なエラー"));
             btn.disabled = false;
             btn.textContent = originalText;
-            btn.classList.remove('opacity-70', 'cursor-not-allowed');
           }
         } catch (e) {
           console.error("Re-analyze failed", e);
-          alert("通信エラーが発生しました");
+          alert("通信エラーが発生しました:\n" + e.message);
           btn.disabled = false;
           btn.textContent = originalText;
         }

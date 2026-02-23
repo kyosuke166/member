@@ -156,13 +156,27 @@ try {
 
     // --- データの変更があった場合、JSONファイルを同期 (案件のみ抽出) ---
     if (in_array($action, ['reset', 'delete', 'update'])) {
+        // 修正ポイント1: rm.date を created として取得
+        // 修正ポイント2: 最新500件に LIMIT
         $stmt = $pdo->query("
-            SELECT ps.* FROM project_summaries ps
+            SELECT 
+                ps.mail_id,
+                ps.title,
+                ps.reward,
+                ps.location,
+                ps.remote,
+                ps.skills,
+                ps.summary_text,
+                rm.date AS created 
+            FROM project_summaries ps
             JOIN received_mails rm ON ps.mail_id = rm.id
             WHERE rm.category = 1
-            ORDER BY ps.created DESC
+            ORDER BY rm.date DESC
+            LIMIT 500
         ");
         $all_projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // JSON出力
         file_put_contents($json_output_path, json_encode($all_projects, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
         
         echo json_encode(['success' => true]);

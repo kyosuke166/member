@@ -114,6 +114,27 @@ try {
 
     $pdo->commit();
 
+    // projects.json を最新500件＆受信日ベースで同期 ---
+    $json_output_path = dirname(__DIR__, 2) . '/member/projects.json';
+    $stmt = $pdo->query("
+        SELECT 
+            ps.mail_id,
+            ps.title,
+            ps.reward,
+            ps.location,
+            ps.remote,
+            ps.skills,
+            ps.summary_text,
+            rm.date AS created 
+        FROM project_summaries ps
+        JOIN received_mails rm ON ps.mail_id = rm.id
+        WHERE rm.category = 1
+        ORDER BY rm.date DESC
+        LIMIT 500
+    ");
+    $all_projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    file_put_contents($json_output_path, json_encode($all_projects, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));    
+
     // 出力バッファをクリアして純粋なJSONのみを送信
     ob_end_clean();
     echo json_encode(['success' => true, 'message' => '解析が完了しました。']);

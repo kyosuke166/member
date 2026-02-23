@@ -102,6 +102,9 @@ import Layout from '../layouts/Layout.astro';
         if (matchRate >= 80) matchColor = 'bg-blue-600';
         else if (matchRate >= 50) matchColor = 'bg-emerald-500';
 
+        // 日付フォーマットの修正 (YYYY-MM-DD HH:mm:ss -> YYYY/MM/DD HH:mm:ss)
+        const formattedDate = p.created ? p.created.replace(/-/g, '/') : '';
+
         return `
         <div class="bg-white border border-slate-200 rounded-2xl p-6 md:p-8 shadow-sm hover:shadow-2xl hover:-translate-y-1.5 hover:border-amber-200 transition-all duration-300 group cursor-default">
           <div class="mb-4 flex items-center justify-between">
@@ -110,45 +113,18 @@ import Layout from '../layouts/Layout.astro';
                 MATCH ${matchRate}%
               </span>
               <span class="ml-3 text-[11px] text-slate-400 font-bold">
-                掲載: ${p.created ? p.created.split(' ')[0].replace(/-/g, '/') : ''}
+                掲載: ${formattedDate}
               </span>
             </div>
           </div>
-
           <h3 class="text-2xl font-extrabold text-slate-900 mb-6 leading-snug group-hover:text-[#c08e00] transition-colors duration-300">
             ${p.title}
           </h3>
-
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-0 border border-slate-100 rounded-xl overflow-hidden mb-6 shadow-sm group-hover:border-amber-100 transition-colors">
-            <div class="bg-slate-50/50 p-5 border-b md:border-b-0 md:border-r border-slate-100 group-hover:bg-amber-50/30 transition-colors">
-              <p class="text-[10px] font-bold text-slate-400 mb-1 tracking-widest uppercase">作業期間</p>
-              <p class="text-[15px] font-bold text-slate-700">${p.term || '相談'}</p>
-            </div>
-            
-            <div class="bg-slate-50/50 p-5 border-b md:border-b-0 md:border-r border-slate-100 group-hover:bg-amber-50/30 transition-colors">
-              <p class="text-[10px] font-bold text-slate-400 mb-1 tracking-widest uppercase">主要拠点</p>
-              <div class="flex items-center gap-2 flex-wrap">
-                <p class="text-[15px] font-bold text-slate-700 leading-snug">${p.location || '都内'}</p>
-                ${p.remote ? `
-                  <span class="inline-block text-[9px] bg-white text-blue-600 px-2 py-0.5 rounded border border-blue-200 font-bold whitespace-nowrap">
-                    ${p.remote}
-                  </span>
-                ` : ''}
-              </div>
-            </div>
-
-            <div class="bg-slate-50/50 p-5 group-hover:bg-amber-50/30 transition-colors">
-              <p class="text-[10px] font-bold text-slate-400 mb-1 tracking-widest uppercase">単価(目安)</p>
-              <p class="text-xl font-black text-blue-600 tracking-tight">${displayPrice}</p>
-            </div>
-          </div>
-
           <div class="mb-8">
             <p class="text-[15px] text-slate-600 leading-relaxed">
               ${p.summary_text}
             </p>
           </div>
-
           <div class="flex flex-wrap gap-2">
             ${skillArray.slice(0, 10).map(skill => `
               <span class="bg-cyan-50 text-cyan-700 border border-cyan-200 px-3 py-1.5 rounded-lg text-[11px] font-bold group-hover:bg-cyan-100 group-hover:border-cyan-300 transition-colors duration-200">
@@ -166,16 +142,22 @@ import Layout from '../layouts/Layout.astro';
     }
 
     async function loadDashboardProjects() {
-      try {
-        const res = await fetch('/projects.json?v=' + Date.now());
-        if (!res.ok) throw new Error('ファイルを読み込めませんでした');
-        allProjects = await res.json();
-        renderProjects(allProjects);
-      } catch (e) {
-        console.error('Fetch error:', e);
-        document.getElementById('project-list-container').innerHTML = `<p class="text-center py-20 text-red-400 font-bold">データの取得に失敗しました</p>`;
-      }
+    try {
+      const res = await fetch('/projects.json?v=' + Date.now());
+      if (!res.ok) throw new Error('ファイルを読み込めませんでした');
+      const rawProjects = await res.json();
+      
+      // skills と summary_text が存在する（nullや空文字でない）ものだけに絞り込む
+      allProjects = rawProjects.filter(p => {
+        return p.skills && p.skills.length > 0 && p.summary_text && p.summary_text.trim() !== '';
+      });
+      
+      renderProjects(allProjects);
+    } catch (e) {
+      console.error('Fetch error:', e);
+      document.getElementById('project-list-container').innerHTML = `<p class="text-center py-20 text-red-400 font-bold">データの取得に失敗しました</p>`;
     }
+  }
 
     async function checkAuth() {
       try {

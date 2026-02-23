@@ -1,42 +1,48 @@
 <?php
 /**
  * 案件JSON生成スクリプト (get_projects.php)
- * cron等で定期実行し、静的なJSONファイルを生成する
  */
 
 require_once __DIR__ . '/../db-config.php';
 
-// 保存先のパス
+// 保存先のパスを共通化
 $save_path = __DIR__ . '/../projects.json';
 
 try {
     $pdo = get_db_connection();
 
-    $sql = "SELECT * FROM project_summaries 
-            WHERE id IN (
-                SELECT MAX(id) 
-                FROM project_summaries 
-                WHERE created >= DATE_SUB(NOW(), INTERVAL 1 MONTH)
-                GROUP BY title, location, reward
-            )
-            ORDER BY created DESC";
+    // 修正ポイント：受信日(rm.date)をcreatedとして取得し、最新500件に絞る
+    // 重複排除(GROUP BY)は一旦外し、シンプルに最新順にします
+    $sql = "SELECT 
+                ps.mail_id,
+                ps.title,
+                ps.reward,
+                ps.location,
+                ps.remote,
+                ps.skills,
+                ps.summary_text,
+                ps.term,
+                rm.date AS created 
+            FROM project_summaries ps
+            JOIN received_mails rm ON ps.mail_id = rm.id
+            WHERE rm.category = 1
+            ORDER BY rm.date DESC
+            LIMIT 500";
 
     $stmt = $pdo->query($sql);
     $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // データ整形
     foreach ($projects as &$p) {
-        // 1. スキル文字列の配列化
-        $p['skills'] = !empty($p['skills']) ? explode(',', $p['skills']) : [];
+        // 1. スキル文字列の配列化（Astro側が配列を期待している場合）
+        $p['skills_array'] = !empty($p['skills']) ? explode(',', $p['skills']) : [];
         
         // 2. 数値型へのキャスト
         $p['reward'] = (int)$p['reward'];
 
-        // 3. 作業期間の整形（西暦削除 ＆ 頭の0を削除）
+        // 3. 作業期間の整形
         if (!empty($p['term'])) {
-            // 「2026年」や「2026/」を削除
             $term = preg_replace('/^20\d{2}[年\/]/u', '', $p['term']);
-            // 「04月」などの先頭の0を削除（12月などはそのまま）
             $p['term'] = preg_replace('/^0+(\d)/', '$1', $term);
         }
     }
@@ -44,10 +50,6 @@ try {
 
     $json_data = json_encode($projects, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
     
-    if (!is_dir(dirname($save_path))) {
-        mkdir(dirname($save_path), 0755, true);
-    }
-
     if (file_put_contents($save_path, $json_data)) {
         echo "Successfully generated: " . count($projects) . " projects found.\n";
     } else {

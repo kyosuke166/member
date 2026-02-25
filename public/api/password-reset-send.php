@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../db-config.php'; 
+require_once __DIR__ . '/../../db-config.php'; 
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -41,15 +41,15 @@ try {
         // 3. メール送信
         $mail = new PHPMailer(true);
         $mail->isSMTP();
-        $mail->Host       = SMTP_HOST;
+        $mail->Host       = SMTP_HOST_INFO;
         $mail->SMTPAuth   = true;
-        $mail->Username   = SMTP_USER;
-        $mail->Password   = SMTP_PASS;
+        $mail->Username   = SMTP_USER_INFO;
+        $mail->Password   = SMTP_PASS_INFO;
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
         $mail->Port       = 465;
         $mail->CharSet    = 'UTF-8';
 
-        $mail->setFrom(SMTP_FROM, SMTP_FROM_NAME);
+        $mail->setFrom(SMTP_FROM_INFO, SMTP_FROM_NAME_INFO);
         $mail->addAddress($email);
         $mail->isHTML(false);
         $mail->Subject = '【SBTフリーランス】パスワード再設定URLのお知らせ';

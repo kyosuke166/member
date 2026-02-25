@@ -8,7 +8,7 @@
 ob_start();
 
 header('Content-Type: application/json; charset=utf-8');
-require_once __DIR__ . '/../db-config.php';
+require_once __DIR__ . '/../../db-config.php';
 require_once __DIR__ . '/gemini_ai.php'; // 今回作成するGemini用関数ファイル
 
 // db-config.phpで定義されているGEMINI_API_KEYを使用

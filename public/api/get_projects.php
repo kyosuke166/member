@@ -3,10 +3,10 @@
  * 案件JSON生成スクリプト (get_projects.php)
  */
 
-require_once __DIR__ . '/../db-config.php';
+require_once __DIR__ . '/../../db-config.php';
 
 // 保存先のパスを共通化
-$save_path = __DIR__ . '/../projects.json';
+$save_path = PROJECTS_JSON_PATH;
 
 try {
     $pdo = get_db_connection();

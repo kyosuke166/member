@@ -15,7 +15,7 @@ header('X-Content-Type-Options: nosniff');
 while (ob_get_level()) ob_end_flush();
 ob_implicit_flush(true);
 
-require_once __DIR__ . '/../db-config.php';
+require_once __DIR__ . '/../../db-config.php';
 
 // ブラウザ(GET)かコマンドライン引数から mode を取得
 $mode = $_GET['mode'] ?? null;
@@ -156,7 +156,7 @@ try {
         $final_text = trim($final_text);
 
         $category = 0; 
-        if (preg_match('/技術者の|人材|要員情報|プロパー|稼働可能|正社員|【(技術者|要員|人材)情報】/u', $subject)) $category = 2;
+        if (preg_match('/技術者の|人材|要員情報|プロパー|稼働可能|正社員|氏名|【(技術者|要員|人材)情報】/u', $subject)) $category = 2;
         elseif (preg_match('/案件|急募|募集|展示|エンド直|元請け直|不可|面談|貴社|外国籍可/u', $subject)) $category = 1;
         if (!empty($attachments) || stripos($final_text, 'drive.google.com') !== false) $category = 2;
 

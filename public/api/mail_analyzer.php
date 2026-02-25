@@ -8,11 +8,11 @@ if (php_sapi_name() !== 'cli') {
     header('Content-Type: text/plain; charset=utf-8');
 }
 
-require_once __DIR__ . '/../db-config.php';
+require_once __DIR__ . '/../../db-config.php';
 require_once __DIR__ . '/gemini_ai.php';
 
 $api_key = defined('GEMINI_API_KEY') ? GEMINI_API_KEY : '';
-$json_output_path = dirname(__DIR__, 2) . '/member/projects.json';
+$json_output_path = PROJECTS_JSON_PATH;
 
 // --- カラー定義（プレフィックス）復活 ---
 $tag_project  = "[CAT:1] "; // 案件用

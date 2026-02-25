@@ -4,13 +4,13 @@
  * 物理削除抑制・ON DUPLICATE KEY対応版
  */
 
-require_once __DIR__ . '/../db-config.php';
+require_once __DIR__ . '/../../db-config.php';
 header('Content-Type: application/json');
 
 $data = json_decode(file_get_contents('php://input'), true);
 $action = $data['action'] ?? '';
 $mail_id = $data['mail_id'] ?? null;
-$json_output_path = dirname(__DIR__, 2) . '/member/projects.json';
+$json_output_path = PROJECTS_JSON_PATH;
 
 try {
     $pdo = get_db_connection();

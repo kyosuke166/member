@@ -2,10 +2,6 @@
 // api/gemini_ai.php
 
 function analyze_mail_with_ai($body, $api_key) {
-    //$api_url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' . trim($api_key);
-    //$api_url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' . trim($api_key);
-    //$api_url = 'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=' . trim($api_key);
-    //$api_url = 'https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=' . trim($api_key);
     $api_url = 'https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=' . trim($api_key);
 
     $prompt = "以下のメールから案件情報を抽出し、JSON形式で回答してください。

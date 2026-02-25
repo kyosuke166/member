@@ -1,7 +1,7 @@
 <?php
 // api/skip_analyzer.php
 header('Content-Type: application/json');
-require_once __DIR__ . '/../db-config.php'; 
+require_once __DIR__ . '/../../db-config.php'; 
 
 try {
     // 関数を呼び出してPDOオブジェクトを取得する

@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../db-config.php';
+require_once __DIR__ . '/../../db-config.php';
 session_start(); // ログイン状態を保持するために必須
 
 header('Content-Type: application/json');

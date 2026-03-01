@@ -30,20 +30,54 @@ try {
             $words = preg_split('/\s+/', trim($kw), -1, PREG_SPLIT_NO_EMPTY);
 
             foreach ($words as $word) {
-                // 本文(rm.body)は参照せず、AIが抽出した情報(skills, title)と送信元、件名を対象にする
-                $whereClauses[] = "(
+                $bodyMatchedPaths = [];
+                $safeWord = escapeshellarg($word);
+                $mailDir = dirname(__DIR__, 2) . '/member/storage/emails/'; // 基点となるディレクトリ
+                
+                // grep実行: 
+                // -l: 一致したファイルパスのみ表示
+                // -i: 大文字小文字を区別しない
+                // -r: サブディレクトリ(日付フォルダ)も再帰的に検索
+                // --include="*.txt": テキストファイルのみ対象
+                $grepCmd = "grep -l -i -r $safeWord --include=\"*.txt\" " . $mailDir . " 2>/dev/null";
+                $grepOutput = shell_exec($grepCmd);
+                
+                if ($grepOutput) {
+                    $fullPaths = explode("\n", trim($grepOutput));
+                    foreach ($fullPaths as $fullPath) {
+                        // DBの raw_body_path は「2024-02-26/filename.txt」の形式なので、
+                        // 基点ディレクトリ以降の文字列を抽出する
+                        $relativePath = str_replace($mailDir, '', $fullPath);
+                        $bodyMatchedPaths[] = $relativePath;
+                    }
+                }
+
+                $wordParam = "%{$word}%";
+                $sqlPart = "(
                     rm.subject LIKE ? OR 
                     rm.from_address LIKE ? OR 
                     ps.title LIKE ? OR 
                     ps.skills LIKE ? OR 
-                    rm.date LIKE ?
-                )";
-                $wordParam = "%{$word}%";
-                $params[] = $wordParam; // subject
-                $params[] = $wordParam; // from_address
-                $params[] = $wordParam; // title
-                $params[] = $wordParam; // skills
-                $params[] = $wordParam; // date
+                    rm.date LIKE ?";
+                
+                $params[] = $wordParam; $params[] = $wordParam;
+                $params[] = $wordParam; $params[] = $wordParam;
+                $params[] = $wordParam;
+
+                // 本文検索でパスがヒットしていれば、DBのパス列(raw_body_path)で照合
+                if (!empty($bodyMatchedPaths)) {
+                    // ヒット数が多い場合に備え、IN句を作成
+                    // パスが多い場合は数千件になる可能性があるため、クエリ上限に注意が必要ですが
+                    // 通常の検索ワードであれば実用範囲内です。
+                    $placeholders = implode(',', array_fill(0, count($bodyMatchedPaths), '?'));
+                    $sqlPart .= " OR rm.raw_body_path IN ($placeholders)";
+                    foreach ($bodyMatchedPaths as $path) {
+                        $params[] = $path;
+                    }
+                }
+
+                $sqlPart .= ")";
+                $whereClauses[] = $sqlPart;
             }
         }
 
@@ -156,8 +190,7 @@ try {
 
     // --- データの変更があった場合、JSONファイルを同期 (案件のみ抽出) ---
     if (in_array($action, ['reset', 'delete', 'update'])) {
-        // 修正ポイント1: rm.date を created として取得
-        // 修正ポイント2: 最新500件に LIMIT
+        // 最新2000件に LIMIT
         $stmt = $pdo->query("
             SELECT 
                 ps.mail_id,
@@ -172,7 +205,7 @@ try {
             JOIN received_mails rm ON ps.mail_id = rm.id
             WHERE rm.category = 1
             ORDER BY rm.date DESC
-            LIMIT 500
+            LIMIT 2000
         ");
         $all_projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
         

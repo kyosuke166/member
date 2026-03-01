@@ -208,6 +208,29 @@ import Layout from '../../layouts/Layout.astro';
     async function fetchProjects(page = 1) {
       currentPage = page;
       
+      // --- ローディング開始処理 ---
+      const tbody = document.getElementById('project-table-body');
+      const searchBtn = document.getElementById('btn-apply-filter');
+      const originalBtnText = searchBtn.textContent;
+
+      // ボタンを無効化して「検索中...」にする
+      searchBtn.disabled = true;
+      searchBtn.innerHTML = '<span class="inline-block animate-spin mr-2">⌛</span>SEARCHING...';
+      
+      // テーブルをスケルトン（またはメッセージ）にする
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="7" class="px-6 py-20 text-center">
+            <div class="flex flex-col items-center gap-4">
+              <div class="w-8 h-8 border-4 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin"></div>
+              <div class="text-slate-400 font-bold animate-pulse uppercase tracking-widest text-xs">
+                サーバー内の全メール本文をスキャンしています...<br>
+                <span class="text-[10px] font-normal mt-2 opacity-50">(10秒ほどかかる場合があります)</span>
+              </div>
+            </div>
+          </td>
+        </tr>`;
+
       // フィルタ値を取得
       const filters = {
         keyword: document.getElementById('filter-keyword').value,
@@ -228,7 +251,14 @@ import Layout from '../../layouts/Layout.astro';
           const totalPages = Math.ceil(result.total / limit) || 1;
           document.getElementById('pagination-info').textContent = `TOTAL: ${result.total} 件 (${page} / ${totalPages} PAGE)`;
         }
-      } catch (e) { console.error("Fetch projects failed", e); }
+      } catch (e) { 
+        console.error("Fetch projects failed", e);
+        tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-20 text-center text-red-400">通信エラーが発生しました</td></tr>';
+      } finally {
+        // --- ローディング終了処理 ---
+        searchBtn.disabled = false;
+        searchBtn.textContent = originalBtnText;
+      }
     }
 
     // フィルタボタンとエンターキーのイベント

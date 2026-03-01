@@ -114,7 +114,7 @@ try {
 
     $pdo->commit();
 
-    // projects.json を最新500件＆受信日ベースで同期 ---
+    // projects.json を最新2000件＆受信日ベースで同期 ---
     $json_output_path = dirname(__DIR__, 2) . '/member/projects.json';
     $stmt = $pdo->query("
         SELECT 
@@ -130,7 +130,7 @@ try {
         JOIN received_mails rm ON ps.mail_id = rm.id
         WHERE rm.category = 1
         ORDER BY rm.date DESC
-        LIMIT 500
+        LIMIT 2000
     ");
     $all_projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
     file_put_contents($json_output_path, json_encode($all_projects, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));    

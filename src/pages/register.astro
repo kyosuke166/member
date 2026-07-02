@@ -1,6 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro';
 const title = "新規メンバー登録（仮登録） | SBTフリーランス";
+const recaptchaSiteKey = import.meta.env.PUBLIC_RECAPTCHA_SITE_KEY || '6LdNxuUsAAAAADflUMi3Pre4JU1wM5KCubS24JN0';
+const recaptchaAction = 'register_temp';
 ---
 
 <Layout title={title} isLoggedIn={false}>
@@ -16,7 +18,10 @@ const title = "新規メンバー登録（仮登録） | SBTフリーランス";
       </div>
 
       <div class="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-200 p-8 md:p-10">
-        <form action="/api/register-temp.php" method="POST" class="space-y-6">
+        <form action="/api/register-temp.php" method="POST" class="space-y-6" id="registration-form">
+          <input type="text" name="website" tabindex="-1" autocomplete="off" class="hidden" />
+          <input type="hidden" name="g-recaptcha-response" />
+          <input type="hidden" name="g-recaptcha-action" value={recaptchaAction} />
           <div>
             <label for="email" class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">
               メールアドレス
@@ -54,4 +59,43 @@ const title = "新規メンバー登録（仮登録） | SBTフリーランス";
 
     </div>
   </main>
+  {recaptchaSiteKey && <script src={`https://www.google.com/recaptcha/api.js?render=${recaptchaSiteKey}`} defer></script>}
 </Layout>
+
+<script is:inline define:vars={{ recaptchaSiteKey, recaptchaAction }}>
+  function setupFormSubmit() {
+    const form = document.getElementById('registration-form');
+    if (!form) return;
+
+    let isSubmitting = false;
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+
+      if (isSubmitting) return;
+      isSubmitting = true;
+
+      if (!window.grecaptcha || !recaptchaSiteKey) {
+        form.submit();
+        return;
+      }
+
+      window.grecaptcha.ready(() => {
+        window.grecaptcha.execute(recaptchaSiteKey, { action: recaptchaAction })
+          .then((token) => {
+            const tokenInput = form.querySelector('input[name="g-recaptcha-response"]');
+            if (tokenInput) {
+              tokenInput.value = token;
+            }
+            form.submit();
+          })
+          .catch(() => {
+            isSubmitting = false;
+            window.alert('reCAPTCHAの初期化に失敗しました。もう一度お試しください。');
+          });
+      });
+    });
+  }
+
+  setupFormSubmit();
+</script>

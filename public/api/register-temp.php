@@ -42,7 +42,68 @@ function show_user_error($message) {
     exit;
 }
 
+function verify_recaptcha($response, $action = '') {
+    $secret = defined('RECAPTCHA_SECRET_KEY') ? RECAPTCHA_SECRET_KEY : '';
+    if ($secret === '') {
+        // No secret configured; treat as pass but no score available
+        return ['success' => true, 'score' => null, 'action' => $action];
+    }
+
+    if (empty($response)) {
+        return false;
+    }
+
+    $payload = http_build_query([
+        'secret' => $secret,
+        'response' => $response,
+        'remoteip' => $_SERVER['REMOTE_ADDR'] ?? '',
+    ]);
+
+    $context = stream_context_create([
+        'http' => [
+            'method' => 'POST',
+            'header' => "Content-type: application/x-www-form-urlencoded\r\n",
+            'content' => $payload,
+            'timeout' => 10,
+        ],
+    ]);
+
+    $result = @file_get_contents('https://www.google.com/recaptcha/api/siteverify', false, $context);
+    if ($result === false) {
+        return false;
+    }
+
+    $data = json_decode($result, true);
+    if (empty($data['success'])) {
+        return false;
+    }
+
+    if (!empty($data['score']) && (float)$data['score'] < 0.5) {
+        return false;
+    }
+
+    if ($action !== '' && !empty($data['action']) && $data['action'] !== $action) {
+        return false;
+    }
+
+    return $data;
+}
+
 $email = $_POST['email'] ?? '';
+$honeypot = trim($_POST['website'] ?? '');
+$recaptcha_response = $_POST['g-recaptcha-response'] ?? '';
+$recaptcha_action = $_POST['g-recaptcha-action'] ?? 'register_temp';
+
+if ($honeypot !== '') {
+    show_user_error('送信内容に不備がありました。');
+}
+
+$recap_result = verify_recaptcha($recaptcha_response, $recaptcha_action);
+if ($recap_result === false) {
+    show_user_error('reCAPTCHA認証に失敗しました。もう一度お試しください。');
+}
+
+$recaptcha_score = isset($recap_result['score']) ? (float)$recap_result['score'] : null;
 
 if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
     show_user_error('有効なメールアドレスを入力してください。');
@@ -69,6 +130,16 @@ try {
     $stmt = $pdo->prepare("SELECT created FROM members WHERE email = :email");
     $stmt->execute([':email' => $email]);
     $created = $stmt->fetchColumn();
+
+    // Save recaptcha score to members table (if column exists)
+    if ($recaptcha_score !== null) {
+        try {
+            $upd = $pdo->prepare("UPDATE members SET recaptcha_score = :score WHERE email = :email");
+            $upd->execute([':score' => $recaptcha_score, ':email' => $email]);
+        } catch (Exception $e) {
+            // Ignore update failure (column may not exist yet)
+        }
+    }
 
     $encoded_email = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($email));
     $key = hash('sha256', $email . $created);

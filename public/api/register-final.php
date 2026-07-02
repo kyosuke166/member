@@ -5,6 +5,76 @@ ini_set('display_errors', 1);
 error_reporting(E_ALL);
 header('Content-Type: application/json');
 
+function show_error_page($message) {
+    echo '<!DOCTYPE html>
+    <html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>登録エラー | SBTフリーランス</title>
+        <style>
+            body { background: #f8fafc; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+            .card { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); max-width: 420px; width: 90%; text-align: center; }
+            h1 { font-size: 1.2rem; color: #1e293b; margin-bottom: 20px; }
+            p { color: #64748b; line-height: 1.6; font-size: 0.95rem; margin-bottom: 25px; }
+        </style>
+    </head>
+    <body>
+        <div class="card">
+            <h1>登録できませんでした</h1>
+            <p>' . htmlspecialchars($message) . '</p>
+        </div>
+    </body>
+    </html>';
+    exit;
+}
+
+function verify_recaptcha($response, $action = '') {
+    $secret = defined('RECAPTCHA_SECRET_KEY') ? RECAPTCHA_SECRET_KEY : '';
+    if ($secret === '') {
+        return true;
+    }
+
+    if (empty($response)) {
+        return false;
+    }
+
+    $payload = http_build_query([
+        'secret' => $secret,
+        'response' => $response,
+        'remoteip' => $_SERVER['REMOTE_ADDR'] ?? '',
+    ]);
+
+    $context = stream_context_create([
+        'http' => [
+            'method' => 'POST',
+            'header' => "Content-type: application/x-www-form-urlencoded\r\n",
+            'content' => $payload,
+            'timeout' => 10,
+        ],
+    ]);
+
+    $result = @file_get_contents('https://www.google.com/recaptcha/api/siteverify', false, $context);
+    if ($result === false) {
+        return false;
+    }
+
+    $data = json_decode($result, true);
+    if (empty($data['success'])) {
+        return false;
+    }
+
+    if (!empty($data['score']) && (float)$data['score'] < 0.5) {
+        return false;
+    }
+
+    if ($action !== '' && !empty($data['action']) && $data['action'] !== $action) {
+        return false;
+    }
+
+    return true;
+}
+
 $email           = $_POST['email'] ?? '';
 $key             = $_POST['key'] ?? '';
 $password        = $_POST['password'] ?? '';
@@ -28,6 +98,17 @@ $portfolio       = $_POST['github_url'] ?? '';
 $skills          = $_POST['skills'] ?? '';
 $bio             = $_POST['bio'] ?? '';
 $skillsheet_name = null;
+$honeypot = trim($_POST['website'] ?? '');
+$recaptcha_response = $_POST['g-recaptcha-response'] ?? '';
+$recaptcha_action = $_POST['g-recaptcha-action'] ?? 'register_final';
+
+if ($honeypot !== '') {
+    show_error_page('送信内容に不備がありました。');
+}
+
+if (!verify_recaptcha($recaptcha_response, $recaptcha_action)) {
+    show_error_page('reCAPTCHA認証に失敗しました。もう一度お試しください。');
+}
 
 if (empty($email) || empty($password) || empty($key)) {
     die(json_encode(['success' => false, 'message' => '入力不足です。']));
